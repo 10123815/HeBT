@@ -1,4 +1,13 @@
-﻿using System;
+﻿/*************************************************************
+
+** Auth: ysd
+** Date: 2015.12.23
+** Desc: Behaviour Tree node
+** Vers: v1.0
+
+*************************************************************/
+
+using System;
 
 namespace HeBT
 {
@@ -37,12 +46,31 @@ namespace HeBT
 
     }
 
+    abstract public class NonLeafNode : Node
+    {
+        protected Node[] m_children;
+
+        public Node[] Children
+        {
+            get
+            {
+                return m_children;
+            }
+        }
+
+        public NonLeafNode() { }
+
+        public NonLeafNode(string nodeName)
+            : base(nodeName)
+        { }
+    }
+
     #region Decorator
 
     /// <summary>
     /// Wrap a behaviour node with other behaviour
     /// </summary>
-    abstract public class DecoratorNode : Node
+    abstract public class DecoratorNode : NonLeafNode
     {
         private Node child;
 
@@ -52,6 +80,12 @@ namespace HeBT
         public DecoratorNode (Node child)
         {
             Child = child;
+
+            if (m_children == null)
+            {
+                m_children = new Node[1];
+                m_children[0] = child;
+            }
         }
 
         public Node Child
@@ -64,6 +98,11 @@ namespace HeBT
             set
             {
                 child = value;
+                if (m_children == null)
+                {
+                    m_children = new Node[1];
+                    m_children[0] = value;
+                }
             }
         }
     }
@@ -115,7 +154,7 @@ namespace HeBT
                 return Common.NodeExecuteState.g_kSuccess;
             }
             return Common.NodeExecuteState.g_kRunning;
-        }
+        } 
     }
 
     /// <summary>
@@ -170,11 +209,9 @@ namespace HeBT
 
     #region Composite
 
-    abstract public class CompositeNode : Node
+    abstract public class CompositeNode : NonLeafNode
     {
         protected byte m_currentChildIndex;
-
-        protected Node[] m_children;
 
         private byte m_count;
 
@@ -310,7 +347,7 @@ namespace HeBT
             throw new NotImplementedException();
         }
 
-        virtual public void Hinted (Common.HintType hintType, string nodeName) { }
+        virtual public void Hinted (int childIndex, Common.HintType hint) { }
     }
 
     public class ParallelNode : CompositeNode

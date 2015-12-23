@@ -43,6 +43,7 @@
   <ItemGroup>
     <Compile Include="BehaviourTree.cs" />
     <Compile Include="Common.cs" />
+    <Compile Include="Hint.cs" />
     <Compile Include="Node.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -1,8 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿/*************************************************************
+
+** Auth: ysd
+** Date: 2015.12.23
+** Desc: Constant define
+** Vers: v1.0
+
+*************************************************************/
 
 namespace HeBT
 {
