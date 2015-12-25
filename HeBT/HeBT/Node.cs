@@ -58,9 +58,9 @@ namespace HeBT
             }
         }
 
-        public NonLeafNode() { }
+        public NonLeafNode ( ) { }
 
-        public NonLeafNode(string nodeName)
+        public NonLeafNode (string nodeName)
             : base(nodeName)
         { }
     }
@@ -154,7 +154,7 @@ namespace HeBT
                 return Common.NodeExecuteState.g_kSuccess;
             }
             return Common.NodeExecuteState.g_kRunning;
-        } 
+        }
     }
 
     /// <summary>
@@ -223,6 +223,8 @@ namespace HeBT
             }
         }
 
+        protected bool m_inited = false;
+
         public CompositeNode ( ) { }
 
         public CompositeNode (string name, byte length)
@@ -290,8 +292,16 @@ namespace HeBT
     /// </summary>
     sealed public class SequenceNode : CompositeNode
     {
+
         public override Common.NodeExecuteState Execute ( )
         {
+
+            if (!m_inited)
+            {
+                OnInitialize();
+                m_inited = true;
+            }
+
             while (true)
             {
                 Common.NodeExecuteState state = m_children[m_currentChildIndex].Execute();
@@ -320,6 +330,13 @@ namespace HeBT
     {
         public override Common.NodeExecuteState Execute ( )
         {
+
+            if (!m_inited)
+            {
+                OnInitialize();
+                m_inited = true;
+            }
+
             while (true)
             {
                 Common.NodeExecuteState state = m_children[m_currentChildIndex].Execute();
@@ -340,14 +357,100 @@ namespace HeBT
         }
     }
 
-    public class HintedSelectorNode : CompositeNode
+    sealed public class HintedSelectorNode : CompositeNode
     {
-        public override Common.NodeExecuteState Execute ( )
+
+        private byte[] m_executeOrder;
+
+        protected override void OnInitialize ( )
         {
-            throw new NotImplementedException();
+            base.OnInitialize();
+            m_executeOrder = new byte[m_children.Length];
+            for (byte i = 0; i < m_children.Length; i++)
+            {
+                m_executeOrder[i] = i;
+            }
         }
 
-        virtual public void Hinted (int childIndex, Common.HintType hint) { }
+        public override Common.NodeExecuteState Execute ( )
+        {
+            if (!m_inited)
+            {
+                OnInitialize();
+                m_inited = true;
+            }
+
+            while (true)
+            {
+                byte executeIndex = m_executeOrder[m_currentChildIndex];
+                Common.NodeExecuteState state = m_children[executeIndex].Execute();
+
+                // return if it is running or we have find a succees one
+                if (state != Common.NodeExecuteState.g_kFailure)
+                {
+                    return state;
+                }
+
+                // no one was successful
+                else if (++m_currentChildIndex == m_children.Length ||
+                    m_children[m_currentChildIndex] == null)
+                {
+                    return Common.NodeExecuteState.g_kFailure;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Reorder the children of hinted selector
+        /// </summary>
+        /// <param name="childIndex">The origin child index</param>
+        /// <param name="hint">Hint type</param>
+        public void Hinted (byte childIndex, Common.HintType hint)
+        {
+            switch (hint)
+            {
+                case Common.HintType.g_kPositive:
+
+                    // reorder
+                    for (byte i = childIndex; i > 0; i--)
+                    {
+                        m_executeOrder[i] = m_executeOrder[i - 1];
+                    }
+                    m_executeOrder[0] = childIndex;
+
+                    // execute at next tick 
+                    m_currentChildIndex = 0;
+                    break;
+                case Common.HintType.g_kNeutral:
+                    byte currentIndex = (byte)Array.IndexOf<byte>(m_executeOrder, childIndex);
+                    // if hinted child is not at its origin order, reorder it back
+                    if (currentIndex < childIndex)
+                    {
+                        for (byte i = currentIndex; i < childIndex; i++)
+                        {
+                            m_executeOrder[i] = m_executeOrder[i + 1];
+                        }
+                        m_executeOrder[childIndex] = childIndex;
+                    }
+                    else if (currentIndex > childIndex)
+                    {
+                        for (byte i = currentIndex; i > childIndex; i--)
+                        {
+                            m_executeOrder[i] = m_executeOrder[i - 1];
+                        }
+                        m_executeOrder[childIndex] = childIndex;
+                    }
+                    break;
+                case Common.HintType.g_kNegative:
+                    // reorder
+                    for (byte i = childIndex; i < m_executeOrder.Length - 1; i++)
+                    {
+                        m_executeOrder[i] = m_executeOrder[i + 1];
+                    }
+                    m_executeOrder[m_executeOrder.Length - 1] = childIndex;
+                    break;
+            }
+        }
     }
 
     public class ParallelNode : CompositeNode

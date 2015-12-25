@@ -44,6 +44,9 @@ namespace HeBT
             m_receiver = receiver;
         }
 
+        /// <summary>
+        /// Hint the receiver
+        /// </summary>
         public void Send()
         {
             m_receiver.ReceiveHint(m_nodeName, m_hintType);
