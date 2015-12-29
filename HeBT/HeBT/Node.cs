@@ -8,6 +8,7 @@
 *************************************************************/
 
 using System;
+using System.Collections.Generic;
 
 namespace HeBT
 {
@@ -453,18 +454,100 @@ namespace HeBT
         }
     }
 
+    /// <summary>
+    /// Success when all children success, failed when all children is failed
+    /// </summary>
     public class ParallelNode : CompositeNode
     {
+
+        /// <summary>
+        /// Running children after a tick
+        /// </summary>
+        private List<byte> m_runningChildrenIndex;
+
+        private byte m_successNumber;
+        private byte m_failureNumber;
+
+        public ParallelNode ( )
+            : base()
+        {
+            m_successNumber = 0;
+            m_failureNumber = 0;
+            m_runningChildrenIndex = new List<byte>(m_children.Length);
+            ResetRunningChildren();
+        }
+
+        public ParallelNode (string name, byte length)
+            : base(name, length)
+        {
+            m_successNumber = 0;
+            m_failureNumber = 0;
+            m_runningChildrenIndex = new List<byte>(m_children.Length);
+            ResetRunningChildren();
+        }
+
+        private void ResetRunningChildren ( )
+        {
+            m_successNumber = 0;
+            m_failureNumber = 0;
+            for (byte i = 0; i < m_runningChildrenIndex.Count; i++)
+                m_runningChildrenIndex.Add(i);
+        }
+
         public override Common.NodeExecuteState Execute ( )
         {
-            throw new NotImplementedException();
+
+            if (!m_inited)
+            {
+                OnInitialize();
+                m_inited = true;
+            }
+
+            // We only execute the running children in next tick
+            byte runningCount = (byte)m_runningChildrenIndex.Count;
+            for (byte i = 0; i < runningCount; i++)
+            {
+                byte currentChildIndex = m_runningChildrenIndex[i];
+                Common.NodeExecuteState state = m_children[currentChildIndex].Execute();
+
+                if (state == Common.NodeExecuteState.g_kSuccess)
+                {
+                    if (++m_successNumber == m_children.Length)
+                    {
+                        ResetRunningChildren();
+                        return Common.NodeExecuteState.g_kSuccess;
+                    }
+
+                    // remove from running children list
+                    m_runningChildrenIndex.RemoveAt(i);
+                }
+                else if (state == Common.NodeExecuteState.g_kFailure)
+                {
+                    if (++m_failureNumber == m_children.Length)
+                    {
+                        ResetRunningChildren();
+                        return Common.NodeExecuteState.g_kFailure;
+                    }
+
+                    // remove from running children list
+                    m_runningChildrenIndex.RemoveAt(i);
+                }
+            }
+
+            // still execute the running children
+            return Common.NodeExecuteState.g_kRunning;
+
         }
     }
 
     #endregion Composite
 
+    #region Behaviour
+
     abstract public class BehaviourNode : Node { }
 
+    abstract public class ConditionNode : Node { }
 
+    #endregion Behaviour
 
 }
