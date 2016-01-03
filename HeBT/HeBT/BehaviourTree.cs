@@ -14,6 +14,8 @@ namespace HeBT
 
         protected NonLeafNode m_root;
 
+        public void Run ( ) { m_root.Execute(); }
+
         /// <summary>
         /// Receive hint from higher logic
         /// </summary>
@@ -23,7 +25,7 @@ namespace HeBT
         {
             HandleHintInPathTo(m_root, name, hint);
         }
-        
+
         private bool HandleHintInPathTo (NonLeafNode root, string nodeName, Common.HintType hint)
         {
             if (root.NodeName == nodeName)
