@@ -12,7 +12,15 @@ namespace HeBT
     public class BehaviourTree
     {
 
-        protected NonLeafNode m_root;
+        private NonLeafNode m_root;
+
+        public NonLeafNode Root
+        {
+            set
+            {
+                m_root = value;
+            }
+        }
 
         public void Run ( ) { m_root.Execute(); }
 

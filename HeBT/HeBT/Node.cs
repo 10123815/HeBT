@@ -31,11 +31,6 @@ namespace HeBT
             }
         }
 
-        public Node ( )
-        {
-            NodeName = "default";
-        }
-
         public Node (string name)
         {
             m_nodeName = name;
@@ -59,8 +54,6 @@ namespace HeBT
             }
         }
 
-        public NonLeafNode ( ) { }
-
         public NonLeafNode (string nodeName)
             : base(nodeName)
         { }
@@ -75,10 +68,8 @@ namespace HeBT
     {
         private Node child;
 
-        public DecoratorNode ( )
-        { }
-
-        public DecoratorNode (Node child)
+        public DecoratorNode (string name, Node child)
+            : base(name)
         {
             Child = child;
 
@@ -135,8 +126,8 @@ namespace HeBT
 
         private byte m_currentCount;
 
-        public LoopNode (Node child, byte loopCount)
-            : base(child)
+        public LoopNode (string name, Node child, byte loopCount)
+            : base(name, child)
         {
             m_loopCount = loopCount;
         }
@@ -164,8 +155,8 @@ namespace HeBT
     public class WrapperNode : DecoratorNode
     {
 
-        public WrapperNode (Node child)
-            : base(child)
+        public WrapperNode (string name, Node child)
+            : base(name, child)
         {
 
         }
@@ -191,8 +182,8 @@ namespace HeBT
     /// </summary>
     abstract public class PreconditionNode : DecoratorNode
     {
-        public PreconditionNode (Node child)
-            : base(child)
+        public PreconditionNode (string name, Node child)
+            : base(name, child)
         { }
 
         public override Common.NodeExecuteState Execute ( )
@@ -226,12 +217,10 @@ namespace HeBT
 
         protected bool m_inited = false;
 
-        public CompositeNode ( ) { }
-
-        public CompositeNode (string name, byte length)
+        public CompositeNode (string name, byte capacity)
             : base(name)
         {
-            m_children = new Node[length];
+            m_children = new Node[capacity];
             m_currentChildIndex = 0;
             m_count = 0;
         }
@@ -294,6 +283,10 @@ namespace HeBT
     sealed public class SequenceNode : CompositeNode
     {
 
+        public SequenceNode (string name, byte length)
+        : base(name, length)
+        { }
+
         public override Common.NodeExecuteState Execute ( )
         {
 
@@ -329,6 +322,11 @@ namespace HeBT
     /// </summary>
     sealed public class SelectorNode : CompositeNode
     {
+
+        public SelectorNode (string name, byte length)
+            : base(name, length)
+        { }
+
         public override Common.NodeExecuteState Execute ( )
         {
 
@@ -360,6 +358,9 @@ namespace HeBT
 
     sealed public class HintedSelectorNode : CompositeNode
     {
+        public HintedSelectorNode (string name, byte length)
+            : base(name, length)
+        { }
 
         private byte[] m_executeOrder;
 
@@ -468,15 +469,6 @@ namespace HeBT
         private byte m_successNumber;
         private byte m_failureNumber;
 
-        public ParallelNode ( )
-            : base()
-        {
-            m_successNumber = 0;
-            m_failureNumber = 0;
-            m_runningChildrenIndex = new List<byte>(m_children.Length);
-            ResetRunningChildren();
-        }
-
         public ParallelNode (string name, byte length)
             : base(name, length)
         {
@@ -544,9 +536,37 @@ namespace HeBT
 
     #region Behaviour
 
-    abstract public class BehaviourNode : Node { }
+    /// <summary>
+    /// Execute some action
+    /// </summary>
+    abstract public class BehaviourNode : Node
+    {
+        public BehaviourNode (string name)
+                : base(name)
+        { }
+    }
 
-    abstract public class ConditionNode : Node { }
+    public class ConditionNode : Node
+    {
+
+        public delegate bool DelCheck ( );
+
+        protected DelCheck m_checkMehotd;
+
+        public ConditionNode (string name, DelCheck checkMethod)
+                : base(name)
+        {
+            m_checkMehotd = checkMethod;
+        }
+
+        public override Common.NodeExecuteState Execute ( )
+        {
+            if (m_checkMehotd())
+                return Common.NodeExecuteState.g_kSuccess;
+            else
+                return Common.NodeExecuteState.g_kFailure;
+        }
+    }
 
     #endregion Behaviour
 
