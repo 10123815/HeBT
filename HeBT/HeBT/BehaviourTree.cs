@@ -22,7 +22,13 @@ namespace HeBT
             }
         }
 
-        public void Run ( ) { m_root.Execute(); }
+        /// <summary>
+        /// Called every frame
+        /// </summary>
+        public void Run ( )
+        {
+            m_root.Execute();
+        }
 
         /// <summary>
         /// Receive hint from higher logic
