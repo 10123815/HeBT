@@ -62,7 +62,7 @@ namespace HeBT
     #region Decorator
 
     /// <summary>
-    /// Wrap a behaviour node with other behaviour
+    /// Wrap a behaviour node with other behaviour.
     /// </summary>
     abstract public class DecoratorNode : NonLeafNode
     {
@@ -150,7 +150,7 @@ namespace HeBT
     }
 
     /// <summary>
-    /// Do something else after child's executing
+    /// Do something else after child's executing.
     /// </summary>
     public class WrapperNode : DecoratorNode
     {
@@ -178,7 +178,7 @@ namespace HeBT
     }
 
     /// <summary>
-    /// Some External condition
+    /// Some External condition.
     /// </summary>
     abstract public class PreconditionNode : DecoratorNode
     {
@@ -278,7 +278,7 @@ namespace HeBT
     }
 
     /// <summary>
-    /// Go ahead until one is failed
+    /// Go ahead until one is failed.
     /// </summary>
     sealed public class SequenceNode : CompositeNode
     {
@@ -318,7 +318,7 @@ namespace HeBT
     }
 
     /// <summary>
-    /// Go ahead until one is successful
+    /// Go ahead until one is successful, then execute the next child.
     /// </summary>
     sealed public class SelectorNode : CompositeNode
     {
@@ -356,13 +356,121 @@ namespace HeBT
         }
     }
 
-    sealed public class HintedSelectorNode : CompositeNode
+    /// <summary>
+    /// Go ahead until one is successful, then execute the first child.
+    /// </summary>
+    sealed public class ReSelectorNode : CompositeNode
     {
-        public HintedSelectorNode (string name, byte length)
+
+        public ReSelectorNode (string name, byte length)
             : base(name, length)
         { }
 
+        public override Common.NodeExecuteState Execute ( )
+        {
+            if (!m_inited)
+            {
+                OnInitialize();
+                m_inited = true;
+            }
+
+            while (true)
+            {
+                Common.NodeExecuteState state = m_children[m_currentChildIndex].Execute();
+
+                // return if it is running
+                if (state == Common.NodeExecuteState.g_kRunning)
+                {
+                    return state;
+                }
+
+                // return and re-execute the first child if current child is successful
+                else if (state == Common.NodeExecuteState.g_kSuccess)
+                {
+                    m_currentChildIndex = 0;
+                    return state;
+                }
+
+                // no one was successful
+                else if (++m_currentChildIndex == m_children.Length ||
+                    m_children[m_currentChildIndex] == null)
+                {
+                    return Common.NodeExecuteState.g_kFailure;
+                }
+            }
+        }
+
+    }
+
+    /// <summary>
+    /// Handle the hint.
+    /// </summary>
+    internal class HintReceiver
+    {
+
+        /// <summary>
+        /// Reorder the children of a hinted selector
+        /// </summary>
+        /// <param name="childIndex">The origin child index</param>
+        /// <param name="hint">Hint type</param>
+        /// <param name="executeOrder">execution order of a hinted selector</param>
+        static public void Hinted (byte childIndex, Common.HintType hint, ref byte[] executeOrder)
+        {
+            switch (hint)
+            {
+                case Common.HintType.g_kPositive:
+
+                    // reorder
+                    for (byte i = childIndex; i > 0; i--)
+                    {
+                        executeOrder[i] = executeOrder[i - 1];
+                    }
+                    executeOrder[0] = childIndex;
+                    break;
+                case Common.HintType.g_kNeutral:
+                    byte currentIndex = (byte)Array.IndexOf<byte>(executeOrder, childIndex);
+                    // if hinted child is not at its origin order, reorder it back
+                    if (currentIndex < childIndex)
+                    {
+                        for (byte i = currentIndex; i < childIndex; i++)
+                        {
+                            executeOrder[i] = executeOrder[i + 1];
+                        }
+                        executeOrder[childIndex] = childIndex;
+                    }
+                    else if (currentIndex > childIndex)
+                    {
+                        for (byte i = currentIndex; i > childIndex; i--)
+                        {
+                            executeOrder[i] = executeOrder[i - 1];
+                        }
+                        executeOrder[childIndex] = childIndex;
+                    }
+                    break;
+                case Common.HintType.g_kNegative:
+                    // reorder
+                    for (byte i = childIndex; i < executeOrder.Length - 1; i++)
+                    {
+                        executeOrder[i] = executeOrder[i + 1];
+                    }
+                    executeOrder[executeOrder.Length - 1] = childIndex;
+                    break;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Go ahead until one is successful, then execute the next child; 
+    /// Hinted selector node can reorder its children when receive hints from high-layer logic.
+    /// </summary>
+    sealed public class HintedSelectorNode : CompositeNode
+    {
+
         private byte[] m_executeOrder;
+
+        public HintedSelectorNode (string name, byte length)
+            : base(name, length)
+        { }
 
         protected override void OnInitialize ( )
         {
@@ -403,54 +511,93 @@ namespace HeBT
         }
 
         /// <summary>
-        /// Reorder the children of hinted selector
+        /// Reorder the execution-order of hinted selector, do not change the origin order of BT
         /// </summary>
-        /// <param name="childIndex">The origin child index</param>
+        /// <param name="childIndex">The origin child index in the BT</param>
         /// <param name="hint">Hint type</param>
         public void Hinted (byte childIndex, Common.HintType hint)
         {
-            switch (hint)
+            HintReceiver.Hinted(childIndex, hint, ref m_executeOrder);
+
+            if (hint == Common.HintType.g_kPositive)
             {
-                case Common.HintType.g_kPositive:
+                // the hinted child will execute at next tick 
+                m_currentChildIndex = 0;
+            }
+        }
+    }
 
-                    // reorder
-                    for (byte i = childIndex; i > 0; i--)
-                    {
-                        m_executeOrder[i] = m_executeOrder[i - 1];
-                    }
-                    m_executeOrder[0] = childIndex;
+    /// <summary>
+    /// Go ahead until one is successful, then re-execute the first child; 
+    /// Hinted selector node can reorder its children when receive hints from high-layer logic.
+    /// </summary>
+    sealed public class ReHintedSelectorNode : CompositeNode
+    {
+        private byte[] m_executeOrder;
 
-                    // execute at next tick 
+        public ReHintedSelectorNode (string name, byte length)
+            : base(name, length)
+        { }
+
+        protected override void OnInitialize ( )
+        {
+            base.OnInitialize();
+            m_executeOrder = new byte[m_children.Length];
+            for (byte i = 0; i < m_children.Length; i++)
+            {
+                m_executeOrder[i] = i;
+            }
+        }
+
+        public override Common.NodeExecuteState Execute ( )
+        {
+            if (!m_inited)
+            {
+                OnInitialize();
+                m_inited = true;
+            }
+
+            while (true)
+            {
+                byte executeIndex = m_executeOrder[m_currentChildIndex];
+                Common.NodeExecuteState state = m_children[executeIndex].Execute();
+
+                // return if it is running
+                if (state == Common.NodeExecuteState.g_kRunning)
+                {
+                    return state;
+                }
+
+                // return and re-execute the first child if current child is successful
+                else if (state == Common.NodeExecuteState.g_kSuccess)
+                {
+                    // the hinted child is at m_executeOrder[0]
                     m_currentChildIndex = 0;
-                    break;
-                case Common.HintType.g_kNeutral:
-                    byte currentIndex = (byte)Array.IndexOf<byte>(m_executeOrder, childIndex);
-                    // if hinted child is not at its origin order, reorder it back
-                    if (currentIndex < childIndex)
-                    {
-                        for (byte i = currentIndex; i < childIndex; i++)
-                        {
-                            m_executeOrder[i] = m_executeOrder[i + 1];
-                        }
-                        m_executeOrder[childIndex] = childIndex;
-                    }
-                    else if (currentIndex > childIndex)
-                    {
-                        for (byte i = currentIndex; i > childIndex; i--)
-                        {
-                            m_executeOrder[i] = m_executeOrder[i - 1];
-                        }
-                        m_executeOrder[childIndex] = childIndex;
-                    }
-                    break;
-                case Common.HintType.g_kNegative:
-                    // reorder
-                    for (byte i = childIndex; i < m_executeOrder.Length - 1; i++)
-                    {
-                        m_executeOrder[i] = m_executeOrder[i + 1];
-                    }
-                    m_executeOrder[m_executeOrder.Length - 1] = childIndex;
-                    break;
+                    return state;
+                }
+
+                // no one was successful
+                else if (++m_currentChildIndex == m_children.Length ||
+                    m_children[m_currentChildIndex] == null)
+                {
+                    return Common.NodeExecuteState.g_kFailure;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Reorder the execution-order of hinted selector, do not change the origin order of BT
+        /// </summary>
+        /// <param name="childIndex">The origin child index in the BT</param>
+        /// <param name="hint">Hint type</param>
+        public void Hinted (byte childIndex, Common.HintType hint)
+        {
+            HintReceiver.Hinted(childIndex, hint, ref m_executeOrder);
+
+            if (hint == Common.HintType.g_kPositive)
+            {
+                // the hinted child will execute at next tick 
+                m_currentChildIndex = 0;
             }
         }
     }
@@ -537,7 +684,8 @@ namespace HeBT
     #region Behaviour
 
     /// <summary>
-    /// Execute some action
+    /// Execute some action or condition related to game logic;
+    /// Leaf node.
     /// </summary>
     abstract public class BehaviourNode : Node
     {
@@ -546,25 +694,65 @@ namespace HeBT
         { }
     }
 
-    public class ConditionNode : Node
+    /// <summary>
+    /// Concrete condition and relative paremeter will be writen in child class.
+    /// </summary>
+    abstract public class ConditionNode : BehaviourNode
     {
 
-        public delegate bool DelCheck ( );
-
-        protected DelCheck m_checkMehotd;
-
-        public ConditionNode (string name, DelCheck checkMethod)
+        public ConditionNode (string name)
                 : base(name)
-        {
-            m_checkMehotd = checkMethod;
-        }
+        { }
 
         public override Common.NodeExecuteState Execute ( )
         {
-            if (m_checkMehotd())
+            if (Check())
                 return Common.NodeExecuteState.g_kSuccess;
             else
                 return Common.NodeExecuteState.g_kFailure;
+        }
+
+        abstract public bool Check ( );
+    }
+
+    /// <summary>
+    /// Example float-comparer condition node;
+    /// Return true if input is bigger/smaller/equal then the given value.
+    /// </summary>
+    public class FloatConditionNode : ConditionNode
+    {
+        public delegate bool DelFloatCmper (float input, float param);
+
+        private DelFloatCmper m_cmper;
+
+        public DelFloatCmper Cmper
+        {
+            set
+            {
+                m_cmper = value;
+            }
+        }
+
+        /// <summary>
+        /// Game data from world(Blackboard)
+        /// </summary>
+        public float input;
+
+        /// <summary>
+        /// Fixed parameter
+        /// </summary>
+        public float param;
+
+        public FloatConditionNode (string name, float p, DelFloatCmper cmp)
+            : base(name)
+        {
+            param = p;
+            m_cmper = cmp;
+        }
+
+        public override bool Check ( )
+        {
+            return m_cmper(input, param);
         }
     }
 
