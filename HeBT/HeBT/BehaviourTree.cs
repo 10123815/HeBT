@@ -12,22 +12,19 @@ namespace HeBT
     public class BehaviourTree
     {
 
+        public BehaviourTree (NonLeafNode root)
+        {
+            m_root = root;
+        }
+
         private NonLeafNode m_root;
 
         public NonLeafNode Root
         {
-            set
+            get
             {
-                m_root = value;
+                return m_root;
             }
-        }
-
-        /// <summary>
-        /// Called every frame
-        /// </summary>
-        public void Run ( )
-        {
-            m_root.Execute();
         }
 
         /// <summary>
@@ -38,6 +35,25 @@ namespace HeBT
         public void ReceiveHint (string name, Common.HintType hint)
         {
             HandleHintInPathTo(m_root, name, hint);
+        }
+
+        public void CreationComplete ( )
+        {
+            Complete(m_root);
+        }
+
+        private void Complete (NonLeafNode root)
+        {
+            if (root is CompositeNode)
+            {
+                (root as CompositeNode).Complete();
+            }
+            int length = root.Children.Length;
+            for (int i = 0; i < length; i++)
+            {
+                if (root.Children[i] is NonLeafNode)
+                    Complete((root.Children[i] as NonLeafNode));
+            }
         }
 
         private bool HandleHintInPathTo (NonLeafNode root, string nodeName, Common.HintType hint)

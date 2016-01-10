@@ -20,43 +20,31 @@ namespace HeBT
     {
         protected byte m_currentChildIndex;
 
-        private byte m_count;
-
-        public byte Count
-        {
-            get
-            {
-                return m_count;
-            }
-        }
-
         protected bool m_inited = false;
 
         public CompositeNode (string name, byte capacity)
             : base(name)
         {
-            m_children = new Node[capacity];
+            m_childList = new List<Node>(capacity);
             m_currentChildIndex = 0;
-            m_count = 0;
         }
+
+        private List<Node> m_childList;
 
         /// <summary>
         /// Add child node at the end of children
         /// </summary>
-        /// <param name="child">Node we want to push back</param>
         public void AddChild (Node child)
         {
-            if (Count == m_children.Length)
-            {
-                Node[] children = new Node[m_children.Length + 1];
-                Buffer.BlockCopy(m_children, 0, children, 0, m_children.Length);
-                children[m_children.Length] = child;
-                m_children = children;
-            }
-            else
-            {
-                m_children[m_count++] = child;
-            }
+            m_childList.Add(child);
+        }
+
+        /// <summary>
+        /// Add child nodes at the end of children
+        /// </summary>
+        public void AddChildren (params Node[] children)
+        {
+            m_childList.AddRange(children);
         }
 
         /// <summary>
@@ -65,29 +53,23 @@ namespace HeBT
         /// <param name="name">Name of the node will be removed</param>
         public void RemoveChild (string name)
         {
-            int index = Array.FindIndex<Node>(m_children, delegate (Node child)
+            int index = m_childList.FindIndex(delegate (Node child)
             {
                 return child.NodeName == name;
             });
 
-            // contain
-            if (index != -1)
-            {
-                Node[] children = new Node[m_children.Length - 1];
-                Buffer.BlockCopy(m_children, 0, children, 0, index);
-                Buffer.BlockCopy(m_children, index + 1, children, index, Count - index - 1);
-                m_children = children;
-            }
+            m_childList.RemoveAt(index);
         }
-
-        protected override void OnInitialize ( )
+        
+        /// <summary>
+        /// Array is faster than List<T>
+        /// </summary>
+        internal void Complete ( )
         {
-            if (m_children.Length > Count)
-            {
-                Node[] children = new Node[Count];
-                Buffer.BlockCopy(m_children, 0, children, 0, Count);
-                m_children = children;
-            }
+            m_children = m_childList.ToArray();
+            m_childList.Clear();
+            m_childList.TrimExcess();
+            m_childList = null;
         }
 
     }
@@ -125,6 +107,7 @@ namespace HeBT
                 else if (++m_currentChildIndex == m_children.Length ||
                     m_children[m_currentChildIndex] == null)
                 {
+                    m_currentChildIndex = 0;
                     return Common.NodeExecuteState.g_kSuccess;
                 }
 
@@ -165,6 +148,7 @@ namespace HeBT
                 else if (++m_currentChildIndex == m_children.Length ||
                     m_children[m_currentChildIndex] == null)
                 {
+                    m_currentChildIndex = 0;
                     return Common.NodeExecuteState.g_kFailure;
                 }
             }
@@ -210,6 +194,7 @@ namespace HeBT
                 else if (++m_currentChildIndex == m_children.Length ||
                     m_children[m_currentChildIndex] == null)
                 {
+                    m_currentChildIndex = 0;
                     return Common.NodeExecuteState.g_kFailure;
                 }
             }
@@ -320,6 +305,7 @@ namespace HeBT
                 else if (++m_currentChildIndex == m_children.Length ||
                     m_children[m_currentChildIndex] == null)
                 {
+                    m_currentChildIndex = 0;
                     return Common.NodeExecuteState.g_kFailure;
                 }
             }
@@ -395,6 +381,7 @@ namespace HeBT
                 else if (++m_currentChildIndex == m_children.Length ||
                     m_children[m_currentChildIndex] == null)
                 {
+                    m_currentChildIndex = 0;
                     return Common.NodeExecuteState.g_kFailure;
                 }
             }
