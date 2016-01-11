@@ -64,7 +64,7 @@ namespace HeBT
         /// <summary>
         /// Array is faster than List<T>
         /// </summary>
-        internal void Complete ( )
+        internal virtual void Complete ( )
         {
             m_children = m_childList.ToArray();
             m_childList.Clear();
@@ -271,17 +271,17 @@ namespace HeBT
         public HintedSelectorNode (string name, byte length)
             : base(name, length)
         { }
-
-        protected override void OnInitialize ( )
+        
+        internal override void Complete ( )
         {
-            base.OnInitialize();
+            base.Complete();
             m_executeOrder = new byte[m_children.Length];
             for (byte i = 0; i < m_children.Length; i++)
             {
                 m_executeOrder[i] = i;
             }
         }
-
+        
         public override Common.NodeExecuteState Execute ( )
         {
             if (!m_inited)
