@@ -7,6 +7,8 @@
 
 *************************************************************/
 
+using System;
+
 namespace HeBT
 {
 
@@ -19,6 +21,28 @@ namespace HeBT
         public BehaviourNode (string name)
                 : base(name)
         { }
+    }
+
+    /// <summary>
+    /// Send a hint, always success.
+    /// </summary>
+    public class HinterNode : BehaviourNode
+    {
+
+        private Hint m_hint;
+
+        public HinterNode (string name, Hint hint)
+            : base(name)
+        {
+            m_hint = hint;
+        }
+
+        public override Common.NodeExecuteState Execute ( )
+        {
+            m_hint.Send();
+            return Common.NodeExecuteState.g_kSuccess;    
+        }
+
     }
 
     /// <summary>

@@ -2,8 +2,7 @@
 
 ** Auth: ysd
 ** Date: 2015.12.23
-** Desc: Hint send from high-layer logic to low-layer logic;
-         Like command-patterns.
+** Desc: Hint send from high-layer logic to low-layer logic.
 ** Vers: v1.0
 
 *************************************************************/

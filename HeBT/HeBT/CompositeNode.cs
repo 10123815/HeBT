@@ -405,9 +405,11 @@ namespace HeBT
     }
 
     /// <summary>
-    /// Success when all children success, failed when all children is failed
+    /// Parallelly running;
+    /// Success when all children success, failed when all children is failed, running when others;
+    /// Every child only runs one time.
     /// </summary>
-    public class ParallelNode : CompositeNode
+    public class ParallelNodeOnceAll : CompositeNode
     {
 
         /// <summary>
@@ -418,7 +420,7 @@ namespace HeBT
         private byte m_successNumber;
         private byte m_failureNumber;
 
-        public ParallelNode (string name, byte length)
+        public ParallelNodeOnceAll (string name, byte length)
             : base(name, length)
         {
             m_successNumber = 0;
@@ -479,6 +481,54 @@ namespace HeBT
             return Common.NodeExecuteState.g_kRunning;
 
         }
+    }
+
+    /// <summary>
+    /// Success when all children success, failed once one child is failed
+    /// </summary>
+    public class ParallelSeqNode : CompositeNode
+    {
+        
+
+        public ParallelSeqNode(string name, byte capacity)
+            :base(name, capacity)
+        {
+        }
+
+        public override Common.NodeExecuteState Execute ( )
+        {
+            if (!m_inited)
+            {
+                OnInitialize();
+                m_inited = false;
+            }
+
+            int successNumber = 0;
+            int l = m_children.Length;
+            for (int i = 0; i < l; i++)
+            {
+                Common.NodeExecuteState state = m_children[i].Execute();
+                if (state == Common.NodeExecuteState.g_kFailure)
+                {
+                    // Failed once any child is failed
+                    return state;
+                }
+
+                if (state == Common.NodeExecuteState.g_kSuccess)
+                {
+                    successNumber++;
+                }
+            }
+
+            // Success when all children success
+            if (successNumber == l)
+            {
+                return Common.NodeExecuteState.g_kSuccess;
+            }
+
+            return Common.NodeExecuteState.g_kRunning;
+        }
+
     }
 
 }

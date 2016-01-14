@@ -83,16 +83,19 @@ namespace HeBT
 
         public override Common.NodeExecuteState Execute ( )
         {
-            Common.NodeExecuteState result = Child.Execute();
-            if (result == Common.NodeExecuteState.g_kFailure)
+            Common.NodeExecuteState state = Child.Execute();
+            if (state == Common.NodeExecuteState.g_kFailure)
             {
                 m_currentCount = 0;
-                return result;
+                return state;
             }
             else if (++m_currentCount > m_loopCount)
             {
-                m_currentCount = 0;
-                return Common.NodeExecuteState.g_kSuccess;
+                if (state == Common.NodeExecuteState.g_kSuccess)
+                {
+                    m_currentCount = 0;
+                }
+                return state;
             }
             return Common.NodeExecuteState.g_kRunning;
         }
