@@ -484,15 +484,17 @@ namespace HeBT
     }
 
     /// <summary>
-    /// Success when all children success, failed once one child is failed
+    /// Success when some children success, failed once one child is failed
     /// </summary>
     public class ParallelSeqNode : CompositeNode
     {
-        
 
-        public ParallelSeqNode(string name, byte capacity)
+        private byte m_maxSuccessNumber;
+
+        public ParallelSeqNode(string name, byte capacity, byte maxSuccessNumber = 255)
             :base(name, capacity)
         {
+            m_maxSuccessNumber = maxSuccessNumber;
         }
 
         public override Common.NodeExecuteState Execute ( )
@@ -500,6 +502,8 @@ namespace HeBT
             if (!m_inited)
             {
                 OnInitialize();
+                if (m_maxSuccessNumber == 255)
+                    m_maxSuccessNumber = (byte)m_children.Length;
                 m_inited = false;
             }
 
@@ -521,7 +525,7 @@ namespace HeBT
             }
 
             // Success when all children success
-            if (successNumber == l)
+            if (successNumber == m_maxSuccessNumber)
             {
                 return Common.NodeExecuteState.g_kSuccess;
             }
