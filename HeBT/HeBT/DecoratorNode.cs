@@ -7,6 +7,8 @@
 
 *************************************************************/
 
+using System;
+
 namespace HeBT
 {
 
@@ -46,6 +48,35 @@ namespace HeBT
                 }
             }
         }
+    }
+
+    /// <summary>
+    /// Successful if child is failed; failed if child is successful
+    /// </summary>
+    public class NegateNode : DecoratorNode
+    {
+
+        public NegateNode(string name, Node child)
+            :base(name, child)
+        { }
+
+        public override Common.NodeExecuteState Execute ( )
+        {
+            Common.NodeExecuteState state = Child.Execute();
+
+            if (state == Common.NodeExecuteState.g_kSuccess)
+            {
+                return Common.NodeExecuteState.g_kFailure;
+            }
+
+            if (state == Common.NodeExecuteState.g_kFailure)
+            {
+                return Common.NodeExecuteState.g_kSuccess;
+            }
+
+            return Common.NodeExecuteState.g_kRunning;
+        }
+
     }
 
     /// <summary>
