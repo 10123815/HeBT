@@ -28,7 +28,23 @@ namespace HeBT
             }
         }
 
-        public Node (string name)
+        public byte ID
+        {
+            get
+            {
+                return id;
+            }
+
+            set
+            {
+                id = value;
+            }
+        }
+
+        private byte id;
+
+
+        protected Node (string name)
         {
             m_nodeName = name;
         }

@@ -27,5 +27,16 @@ namespace HeBT
             g_kNegative = 2
         }
 
+        public enum CompositeNodeType : byte
+        {
+            g_kSequence = 0,
+            g_kSelector = 1,
+            g_kReSelector = 2,
+            g_kHintedSelector = 3,
+            g_kReHintedSelector = 4,
+            g_kParallelOnceAll = 5,
+            g_kParallel
+        }
+
     }
 }

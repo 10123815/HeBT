@@ -19,7 +19,7 @@ namespace HeBT
     {
         private Node child;
 
-        public DecoratorNode (string name, Node child)
+        protected DecoratorNode (string name, Node child)
             : base(name)
         {
             Child = child;
@@ -56,7 +56,7 @@ namespace HeBT
     public class NegateNode : DecoratorNode
     {
 
-        public NegateNode(string name, Node child)
+        internal NegateNode(string name, Node child)
             :base(name, child)
         { }
 
@@ -89,27 +89,27 @@ namespace HeBT
         /// <summary>
         /// repeat for loopCount times
         /// </summary>
-        private byte m_loopCount;
+        private byte m_loopTimes;
 
-        public byte LoopCount
+        public byte LoopTimes
         {
             get
             {
-                return m_loopCount;
+                return m_loopTimes;
             }
 
             set
             {
-                m_loopCount = value;
+                m_loopTimes = value;
             }
         }
 
         private byte m_currentCount;
 
-        public LoopNode (string name, Node child, byte loopCount)
+        internal LoopNode (string name, Node child, byte loopCount)
             : base(name, child)
         {
-            m_loopCount = loopCount;
+            m_loopTimes = loopCount;
         }
 
         public override Common.NodeExecuteState Execute ( )
@@ -120,7 +120,7 @@ namespace HeBT
                 m_currentCount = 0;
                 return state;
             }
-            else if (++m_currentCount > m_loopCount)
+            else if (++m_currentCount > m_loopTimes)
             {
                 if (state == Common.NodeExecuteState.g_kSuccess)
                 {
@@ -133,30 +133,49 @@ namespace HeBT
     }
 
     /// <summary>
+    /// Loop until its child is failed
+    /// </summary>
+    public class InfiniteLoopNode : DecoratorNode
+    {
+
+        internal InfiniteLoopNode (string name, Node child)
+            : base(name, child)
+        { }
+
+        public override Common.NodeExecuteState Execute ( )
+        {
+            Common.NodeExecuteState state = Child.Execute();
+            if (state == Common.NodeExecuteState.g_kFailure)
+            {
+                return Common.NodeExecuteState.g_kFailure;
+            }
+            return Common.NodeExecuteState.g_kRunning;
+        }
+
+    }
+
+    /// <summary>
     /// Do something else after child's executing.
     /// </summary>
     public class WrapperNode : DecoratorNode
     {
 
-        public WrapperNode (string name, Node child)
+        internal WrapperNode (string name, Node child, DelWrapper wrapper)
             : base(name, child)
         {
-
+            m_wrapper = wrapper;
         }
 
         /// <summary>
-        /// Do something
+        /// Do something else
         /// </summary>
-        /// <returns></returns>
-        public virtual Common.NodeExecuteState Wrapper ( )
-        {
-            return Common.NodeExecuteState.g_kSuccess;
-        }
+        public delegate Common.NodeExecuteState DelWrapper ( );
+        private DelWrapper m_wrapper;
 
         public override Common.NodeExecuteState Execute ( )
         {
             Child.Execute();
-            return Wrapper();
+            return m_wrapper();
         }
     }
 
@@ -165,7 +184,7 @@ namespace HeBT
     /// </summary>
     abstract public class PreconditionNode : DecoratorNode
     {
-        public PreconditionNode (string name, Node child)
+        internal PreconditionNode (string name, Node child)
             : base(name, child)
         { }
 

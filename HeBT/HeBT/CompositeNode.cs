@@ -22,7 +22,7 @@ namespace HeBT
 
         protected bool m_inited = false;
 
-        public CompositeNode (string name, byte capacity)
+        protected CompositeNode (string name, byte capacity)
             : base(name)
         {
             m_childList = new List<Node>(capacity);
@@ -60,7 +60,7 @@ namespace HeBT
 
             m_childList.RemoveAt(index);
         }
-        
+
         /// <summary>
         /// Array is faster than List<T>
         /// </summary>
@@ -77,10 +77,10 @@ namespace HeBT
     /// <summary>
     /// Go ahead until one is failed.
     /// </summary>
-    sealed public class SequenceNode : CompositeNode
+    public sealed class SequenceNode : CompositeNode
     {
 
-        public SequenceNode (string name, byte length)
+        internal SequenceNode (string name, byte length)
         : base(name, length)
         { }
 
@@ -118,10 +118,10 @@ namespace HeBT
     /// <summary>
     /// Go ahead until one is successful, then execute the next child.
     /// </summary>
-    sealed public class SelectorNode : CompositeNode
+    public sealed class SelectorNode : CompositeNode
     {
 
-        public SelectorNode (string name, byte length)
+        internal SelectorNode (string name, byte length)
             : base(name, length)
         { }
 
@@ -158,10 +158,10 @@ namespace HeBT
     /// <summary>
     /// Go ahead until one is successful, then execute the first child.
     /// </summary>
-    sealed public class ReSelectorNode : CompositeNode
+    public sealed class ReSelectorNode : CompositeNode
     {
 
-        public ReSelectorNode (string name, byte length)
+        internal ReSelectorNode (string name, byte length)
             : base(name, length)
         { }
 
@@ -263,15 +263,15 @@ namespace HeBT
     /// Go ahead until one is successful, then execute the next child; 
     /// Hinted selector node can reorder its children when receive hints from high-layer logic.
     /// </summary>
-    sealed public class HintedSelectorNode : CompositeNode
+    public sealed class HintedSelectorNode : CompositeNode
     {
 
         private byte[] m_executeOrder;
 
-        public HintedSelectorNode (string name, byte length)
+        internal HintedSelectorNode (string name, byte length)
             : base(name, length)
         { }
-        
+
         internal override void Complete ( )
         {
             base.Complete();
@@ -281,7 +281,7 @@ namespace HeBT
                 m_executeOrder[i] = i;
             }
         }
-        
+
         public override Common.NodeExecuteState Execute ( )
         {
             if (!m_inited)
@@ -332,11 +332,11 @@ namespace HeBT
     /// Go ahead until one is successful, then re-execute the first child; 
     /// Hinted selector node can reorder its children when receive hints from high-layer logic.
     /// </summary>
-    sealed public class ReHintedSelectorNode : CompositeNode
+    public sealed class ReHintedSelectorNode : CompositeNode
     {
         private byte[] m_executeOrder;
 
-        public ReHintedSelectorNode (string name, byte length)
+        internal ReHintedSelectorNode (string name, byte length)
             : base(name, length)
         { }
 
@@ -406,10 +406,10 @@ namespace HeBT
 
     /// <summary>
     /// Parallelly running;
-    /// Success when all children success, failed when all children is failed, running when others;
+    /// Success when all children success, running when some children is running, failed when others;
     /// Every child only runs one time.
     /// </summary>
-    public class ParallelNodeOnceAll : CompositeNode
+    public sealed class ParallelNodeOnceAll : CompositeNode
     {
 
         /// <summary>
@@ -420,7 +420,7 @@ namespace HeBT
         private byte m_successNumber;
         private byte m_failureNumber;
 
-        public ParallelNodeOnceAll (string name, byte length)
+        internal ParallelNodeOnceAll (string name, byte length)
             : base(name, length)
         {
             m_successNumber = 0;
@@ -486,13 +486,13 @@ namespace HeBT
     /// <summary>
     /// Success when some children success, failed once one child is failed
     /// </summary>
-    public class ParallelSeqNode : CompositeNode
+    public sealed class ParallelSeqNode : CompositeNode
     {
 
         private byte m_maxSuccessNumber;
 
-        public ParallelSeqNode(string name, byte capacity, byte maxSuccessNumber = 255)
-            :base(name, capacity)
+        internal ParallelSeqNode (string name, byte capacity, byte maxSuccessNumber = 255)
+            : base(name, capacity)
         {
             m_maxSuccessNumber = maxSuccessNumber;
         }
@@ -524,13 +524,67 @@ namespace HeBT
                 }
             }
 
-            // Success when all children success
+            // Success when some children success
             if (successNumber == m_maxSuccessNumber)
             {
                 return Common.NodeExecuteState.g_kSuccess;
             }
 
             return Common.NodeExecuteState.g_kRunning;
+        }
+    }
+
+    /// <summary>
+    /// Success once one child is successful, failed when some children is failed
+    /// </summary>
+    public sealed class ParallelSelNode : CompositeNode
+    {
+
+        private byte m_maxFailedNumber;
+
+        internal ParallelSelNode (string name, byte length, byte maxFailedNumber)
+             : base(name, length)
+        {
+            m_maxFailedNumber = maxFailedNumber;
+        }
+
+        public override Common.NodeExecuteState Execute ( )
+        {
+
+            if (!m_inited)
+            {
+                OnInitialize();
+                if (m_maxFailedNumber == 255)
+                    m_maxFailedNumber = (byte)m_children.Length;
+                m_inited = false;
+            }
+
+            int failedNumber = 0;
+            int l = Children.Length;
+            for (int i = 0; i < l; i++)
+            {
+                Common.NodeExecuteState state = Children[i].Execute();
+
+                // success once one child is successful
+                if (state == Common.NodeExecuteState.g_kSuccess)
+                {
+                    return Common.NodeExecuteState.g_kSuccess;
+                }
+
+                if (state == Common.NodeExecuteState.g_kFailure)
+                {
+                    failedNumber++;
+                }
+            }
+
+            // Success when some children is failed
+            if (failedNumber == m_maxFailedNumber)
+            {
+                return Common.NodeExecuteState.g_kFailure;
+            }
+
+            return Common.NodeExecuteState.g_kRunning;
+
         }
 
     }
