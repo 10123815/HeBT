@@ -41,6 +41,7 @@
   <ItemGroup>
     <Compile Include="BehaviourNode.cs" />
     <Compile Include="BehaviourTree.cs" />
+    <Compile Include="Blackboard.cs" />
     <Compile Include="Common.cs" />
     <Compile Include="CompositeNode.cs" />
     <Compile Include="DecoratorNode.cs" />
