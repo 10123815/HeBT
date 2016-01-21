@@ -32,17 +32,31 @@ namespace HeBT
         {
             get
             {
-                return id;
+                return m_id;
             }
 
             set
             {
-                id = value;
+                m_id = value;
             }
         }
 
-        private byte id;
+        public NonLeafNode Parent
+        {
+            get
+            {
+                return m_parent;
+            }
 
+            set
+            {
+                m_parent = value;
+            }
+        }
+
+        private byte m_id;
+
+        protected NonLeafNode m_parent;
 
         protected Node (string name)
         {

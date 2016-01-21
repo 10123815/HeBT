@@ -7,8 +7,6 @@
 
 *************************************************************/
 
-using System;
-
 namespace HeBT
 {
 
@@ -17,12 +15,13 @@ namespace HeBT
     /// </summary>
     abstract public class DecoratorNode : NonLeafNode
     {
-        private Node child;
+        private Node m_child;
 
         protected DecoratorNode (string name, Node child)
             : base(name)
         {
-            Child = child;
+            m_child = child;
+            m_child.Parent = this;
 
             if (m_children == null)
             {
@@ -35,12 +34,12 @@ namespace HeBT
         {
             get
             {
-                return child;
+                return m_child;
             }
 
             set
             {
-                child = value;
+                m_child = value;
                 if (m_children == null)
                 {
                     m_children = new Node[1];
@@ -56,8 +55,8 @@ namespace HeBT
     public class NegateNode : DecoratorNode
     {
 
-        internal NegateNode(string name, Node child)
-            :base(name, child)
+        internal NegateNode (string name, Node child)
+            : base(name, child)
         { }
 
         public override Common.NodeExecuteState Execute ( )
@@ -197,6 +196,48 @@ namespace HeBT
         }
 
         abstract public bool PreCheck ( );
+    }
+
+    abstract public class ConditionJumpNode : PreconditionNode
+    {
+        private string m_jumpName;
+
+        internal ConditionJumpNode (string name, Node child, string jumpName)
+            : base(name, child)
+        {
+            m_jumpName = jumpName;
+        }
+
+        public override Common.NodeExecuteState Execute ( )
+        {
+            // if true, jump to the desired node
+            if (PreCheck())
+            {
+                // set current child of the parent of the desired node pointing the desired node
+
+
+                return Common.NodeExecuteState.g_kSuccess;
+            }
+
+            return Child.Execute();
+        }
+
+        /// <summary>
+        /// If the desired node is in parent
+        /// </summary>
+        private bool SearchInParent (NonLeafNode parent, string name)
+        {
+            return false;
+        }
+
+        /// <summary>
+        /// If the desired node is in children
+        /// </summary>
+        private bool SearchInChild (NonLeafNode parent, string name)
+        {
+            return false;
+        }
+
     }
 
 }

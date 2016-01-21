@@ -20,6 +20,14 @@ namespace HeBT
     {
         protected byte m_currentChildIndex;
 
+        public byte CurrentChildIndex
+        {
+            set
+            {
+                m_currentChildIndex = value;
+            }
+        }
+
         protected bool m_inited = false;
 
         protected CompositeNode (string name, byte capacity)
@@ -36,6 +44,7 @@ namespace HeBT
         /// </summary>
         public void AddChild (Node child)
         {
+            child.Parent = this;
             m_childList.Add(child);
         }
 
@@ -44,7 +53,10 @@ namespace HeBT
         /// </summary>
         public void AddChildren (params Node[] children)
         {
-            m_childList.AddRange(children);
+            for (int i = 0; i < children.Length; i++)
+            {
+                AddChild(children[i]);
+            }
         }
 
         /// <summary>
