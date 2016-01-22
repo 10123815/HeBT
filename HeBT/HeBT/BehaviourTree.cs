@@ -15,10 +15,10 @@ namespace HeBT
     /// <summary>
     /// Client need to extend this class to add some Create** method to create behaviour nodes
     /// </summary>
-    abstract public class TreeNodeFactor
+    abstract public class TreeNodeFactory
     {
 
-        public TreeNodeFactor ( )
+        public TreeNodeFactory ( )
         {
             m_nameSpace = new HashSet<string>();
         }
