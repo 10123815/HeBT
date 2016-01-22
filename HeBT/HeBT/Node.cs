@@ -65,7 +65,7 @@ namespace HeBT
 
         virtual protected void OnInitialize ( ) { }
 
-        abstract public Common.NodeExecuteState Execute ( );
+        abstract public Common.NodeExecuteState Execute (Blackboard blackboard);
 
     }
 

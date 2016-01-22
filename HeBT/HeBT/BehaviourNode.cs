@@ -35,7 +35,7 @@ namespace HeBT
             m_hint = hint;
         }
 
-        public override Common.NodeExecuteState Execute ( )
+        public override Common.NodeExecuteState Execute (Blackboard blackboard)
         {
             m_hint.Send();
             return Common.NodeExecuteState.g_kSuccess;    
@@ -53,65 +53,15 @@ namespace HeBT
                 : base(name)
         { }
 
-        public override Common.NodeExecuteState Execute ( )
+        public override Common.NodeExecuteState Execute (Blackboard blackboard)
         {
-            if (Check())
+            if (Check(blackboard))
                 return Common.NodeExecuteState.g_kSuccess;
             else
                 return Common.NodeExecuteState.g_kFailure;
         }
 
-        abstract public bool Check ( );
+        abstract public bool Check (Blackboard blackboard);
     }
-
-    /// <summary>
-    /// Example float-comparer condition node;
-    /// Return true if input is bigger/smaller/equal then the given value.
-    /// </summary>
-    public class FloatConditionNode : ConditionNode
-    {
-        public delegate bool DelFloatCmper (float input, float param);
-
-        private DelFloatCmper m_cmper;
-
-        public DelFloatCmper Cmper
-        {
-            set
-            {
-                m_cmper = value;
-            }
-        }
-
-        public delegate float DelGetInput ( );
-
-        /// <summary>
-        /// Get input from external game logic, such as blackboard 
-        /// </summary>
-        private DelGetInput m_getInputMethod;
-
-        public DelGetInput GetInputMethod
-        {
-            set
-            {
-                m_getInputMethod = value;
-            }
-        }
-
-        /// <summary>
-        /// Fixed parameter
-        /// </summary>
-        public float param;
-
-        public FloatConditionNode (string name, float p, DelFloatCmper cmp)
-            : base(name)
-        {
-            param = p;
-            m_cmper = cmp;
-        }
-
-        public override bool Check ( )
-        {
-            return m_cmper(m_getInputMethod(), param);
-        }
-    }
+    
 }

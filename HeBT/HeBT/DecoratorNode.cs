@@ -59,9 +59,9 @@ namespace HeBT
             : base(name, child)
         { }
 
-        public override Common.NodeExecuteState Execute ( )
+        public override Common.NodeExecuteState Execute (Blackboard blackboard)
         {
-            Common.NodeExecuteState state = Child.Execute();
+            Common.NodeExecuteState state = Child.Execute(blackboard);
 
             if (state == Common.NodeExecuteState.g_kSuccess)
             {
@@ -111,9 +111,9 @@ namespace HeBT
             m_loopTimes = loopCount;
         }
 
-        public override Common.NodeExecuteState Execute ( )
+        public override Common.NodeExecuteState Execute (Blackboard blackboard)
         {
-            Common.NodeExecuteState state = Child.Execute();
+            Common.NodeExecuteState state = Child.Execute(blackboard);
             if (state == Common.NodeExecuteState.g_kFailure)
             {
                 m_currentCount = 0;
@@ -141,9 +141,9 @@ namespace HeBT
             : base(name, child)
         { }
 
-        public override Common.NodeExecuteState Execute ( )
+        public override Common.NodeExecuteState Execute (Blackboard blackboard)
         {
-            Common.NodeExecuteState state = Child.Execute();
+            Common.NodeExecuteState state = Child.Execute(blackboard);
             if (state == Common.NodeExecuteState.g_kFailure)
             {
                 return Common.NodeExecuteState.g_kFailure;
@@ -171,9 +171,9 @@ namespace HeBT
         public delegate Common.NodeExecuteState DelWrapper ( );
         private DelWrapper m_wrapper;
 
-        public override Common.NodeExecuteState Execute ( )
+        public override Common.NodeExecuteState Execute (Blackboard blackboard)
         {
-            Child.Execute();
+            Child.Execute(blackboard);
             return m_wrapper();
         }
     }
@@ -187,10 +187,10 @@ namespace HeBT
             : base(name, child)
         { }
 
-        public override Common.NodeExecuteState Execute ( )
+        public override Common.NodeExecuteState Execute (Blackboard blackboard)
         {
             if (PreCheck())
-                return Child.Execute();
+                return Child.Execute(blackboard);
             else
                 return Common.NodeExecuteState.g_kFailure;
         }
@@ -211,7 +211,7 @@ namespace HeBT
             m_jumpName = jumpName;
         }
 
-        public override Common.NodeExecuteState Execute ( )
+        public override Common.NodeExecuteState Execute (Blackboard blackboard)
         {
             // if true, jump to the desired node
             if (PreCheck())
@@ -224,7 +224,7 @@ namespace HeBT
                 return found ? Common.NodeExecuteState.g_kSuccess : Common.NodeExecuteState.g_kFailure;
             }
 
-            return Child.Execute();
+            return Child.Execute(blackboard);
         }
 
         private NonLeafNode BackToRoot (NonLeafNode node)

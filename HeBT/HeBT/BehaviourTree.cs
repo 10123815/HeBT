@@ -304,7 +304,10 @@ namespace HeBT
                 if (node is NonLeafNode)
                 {
                     NonLeafNode nonLeafNode = (node as NonLeafNode);
-                    nonLeafNode.blackboard.Parent = FindParentBlackboard(nonLeafNode);
+
+                    // Client can set the parents also.
+                    // nonLeafNode.blackboard.Parent = FindParentBlackboard(nonLeafNode);
+
                     int childNumber = nonLeafNode.Children.Length;
                     for (int i = 0; i < childNumber; i++)
                     {

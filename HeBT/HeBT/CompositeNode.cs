@@ -96,7 +96,7 @@ namespace HeBT
         : base(name, length)
         { }
 
-        public override Common.NodeExecuteState Execute ( )
+        public override Common.NodeExecuteState Execute (Blackboard blackboard)
         {
 
             if (!m_inited)
@@ -107,7 +107,7 @@ namespace HeBT
 
             while (true)
             {
-                Common.NodeExecuteState state = m_children[m_currentChildIndex].Execute();
+                Common.NodeExecuteState state = m_children[m_currentChildIndex].Execute(blackboard);
 
                 // return if is running or this child has failed out
                 if (state != Common.NodeExecuteState.g_kSuccess)
@@ -137,7 +137,7 @@ namespace HeBT
             : base(name, length)
         { }
 
-        public override Common.NodeExecuteState Execute ( )
+        public override Common.NodeExecuteState Execute (Blackboard blackboard)
         {
 
             if (!m_inited)
@@ -148,7 +148,7 @@ namespace HeBT
 
             while (true)
             {
-                Common.NodeExecuteState state = m_children[m_currentChildIndex].Execute();
+                Common.NodeExecuteState state = m_children[m_currentChildIndex].Execute(blackboard);
 
                 // return if it is running or we have find a succees one
                 if (state != Common.NodeExecuteState.g_kFailure)
@@ -177,7 +177,7 @@ namespace HeBT
             : base(name, length)
         { }
 
-        public override Common.NodeExecuteState Execute ( )
+        public override Common.NodeExecuteState Execute (Blackboard blackboard)
         {
             if (!m_inited)
             {
@@ -187,7 +187,7 @@ namespace HeBT
 
             while (true)
             {
-                Common.NodeExecuteState state = m_children[m_currentChildIndex].Execute();
+                Common.NodeExecuteState state = m_children[m_currentChildIndex].Execute(blackboard);
 
                 // return if it is running
                 if (state == Common.NodeExecuteState.g_kRunning)
@@ -294,7 +294,7 @@ namespace HeBT
             }
         }
 
-        public override Common.NodeExecuteState Execute ( )
+        public override Common.NodeExecuteState Execute (Blackboard blackboard)
         {
             if (!m_inited)
             {
@@ -305,7 +305,7 @@ namespace HeBT
             while (true)
             {
                 byte executeIndex = m_executeOrder[m_currentChildIndex];
-                Common.NodeExecuteState state = m_children[executeIndex].Execute();
+                Common.NodeExecuteState state = m_children[executeIndex].Execute(blackboard);
 
                 // return if it is running or we have find a succees one
                 if (state != Common.NodeExecuteState.g_kFailure)
@@ -362,7 +362,7 @@ namespace HeBT
             }
         }
 
-        public override Common.NodeExecuteState Execute ( )
+        public override Common.NodeExecuteState Execute (Blackboard blackboard)
         {
             if (!m_inited)
             {
@@ -373,7 +373,7 @@ namespace HeBT
             while (true)
             {
                 byte executeIndex = m_executeOrder[m_currentChildIndex];
-                Common.NodeExecuteState state = m_children[executeIndex].Execute();
+                Common.NodeExecuteState state = m_children[executeIndex].Execute(blackboard);
 
                 // return if it is running
                 if (state == Common.NodeExecuteState.g_kRunning)
@@ -449,7 +449,7 @@ namespace HeBT
                 m_runningChildrenIndex.Add(i);
         }
 
-        public override Common.NodeExecuteState Execute ( )
+        public override Common.NodeExecuteState Execute (Blackboard blackboard)
         {
 
             if (!m_inited)
@@ -463,7 +463,7 @@ namespace HeBT
             for (byte i = 0; i < runningCount; i++)
             {
                 byte currentChildIndex = m_runningChildrenIndex[i];
-                Common.NodeExecuteState state = m_children[currentChildIndex].Execute();
+                Common.NodeExecuteState state = m_children[currentChildIndex].Execute(blackboard);
 
                 if (state == Common.NodeExecuteState.g_kSuccess)
                 {
@@ -509,7 +509,7 @@ namespace HeBT
             m_maxSuccessNumber = maxSuccessNumber;
         }
 
-        public override Common.NodeExecuteState Execute ( )
+        public override Common.NodeExecuteState Execute (Blackboard blackboard)
         {
             if (!m_inited)
             {
@@ -523,7 +523,7 @@ namespace HeBT
             int l = m_children.Length;
             for (int i = 0; i < l; i++)
             {
-                Common.NodeExecuteState state = m_children[i].Execute();
+                Common.NodeExecuteState state = m_children[i].Execute(blackboard);
                 if (state == Common.NodeExecuteState.g_kFailure)
                 {
                     // Failed once any child is failed
@@ -560,7 +560,7 @@ namespace HeBT
             m_maxFailedNumber = maxFailedNumber;
         }
 
-        public override Common.NodeExecuteState Execute ( )
+        public override Common.NodeExecuteState Execute (Blackboard blackboard)
         {
 
             if (!m_inited)
@@ -575,7 +575,7 @@ namespace HeBT
             int l = Children.Length;
             for (int i = 0; i < l; i++)
             {
-                Common.NodeExecuteState state = Children[i].Execute();
+                Common.NodeExecuteState state = Children[i].Execute(blackboard);
 
                 // success once one child is successful
                 if (state == Common.NodeExecuteState.g_kSuccess)
