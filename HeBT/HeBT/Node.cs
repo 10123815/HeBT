@@ -71,6 +71,12 @@ namespace HeBT
 
     abstract public class NonLeafNode : Node
     {
+
+        /// <summary>
+        /// Datas shared among this node and its chidldren.
+        /// </summary>
+        public Blackboard blackboard;
+
         protected Node[] m_children;
 
         public Node[] Children
@@ -81,9 +87,10 @@ namespace HeBT
             }
         }
 
-        public NonLeafNode (string nodeName)
-            : base(nodeName)
+        public NonLeafNode (string name)
+            : base(name)
         { }
+
     }
 
 

@@ -2,12 +2,10 @@
 
 ** Auth: ysd
 ** Date: 2016.1.8
-** Desc: Behaviour node, leaf node
+** Desc: Behaviour node, leaf node, do actions or conditions
 ** Vers: v1.0
 
 *************************************************************/
-
-using System;
 
 namespace HeBT
 {

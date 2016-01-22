@@ -42,7 +42,7 @@ namespace HeBT
         /// <param name="name">Node name</param>
         /// <param name="length">Possible number of children</param>
         /// <param name="children">Child nodes of this sub-tree, may be null</param>
-        public SequenceNode CreateSequence (string name, byte length, params Node[] children)
+        public SequenceNode CreateSequence (string name, byte length, Blackboard bb = null, params Node[] children)
         {
             CheckName(name);
 
@@ -64,20 +64,22 @@ namespace HeBT
         /// <param name="name">Node name</param>
         /// <param name="length">Possible number of children</param>
         /// <param name="children">Child nodes of this sub-tree, may be null</param>
-        public SelectorNode CreateSelector (string name, byte length, params Node[] children)
+        public SelectorNode CreateSelector (string name, byte length, Blackboard bb = null, params Node[] children)
         {
             CheckName(name);
 
-            if (children == null)
+            SelectorNode sel = new SelectorNode(name, length);
+            if (children != null)
             {
-                return new SelectorNode(name, length);
-            }
-            else
-            {
-                SelectorNode sel = new SelectorNode(name, length);
                 sel.AddChildren(children);
-                return sel;
             }
+            if (bb != null)
+            {
+                sel.blackboard = bb;
+            }
+
+            return sel;
+
         }
 
         /// <summary>
@@ -251,6 +253,7 @@ namespace HeBT
                 if (node is NonLeafNode)
                 {
                     NonLeafNode nonLeafNode = (node as NonLeafNode);
+                    nonLeafNode.blackboard.Parent = FindParentBlackboard(nonLeafNode);
                     int childNumber = nonLeafNode.Children.Length;
                     for (int i = 0; i < childNumber; i++)
                     {
@@ -264,6 +267,24 @@ namespace HeBT
                 }
             }
         }
+
+        /// <summary>
+        /// Search blackboard at parent
+        /// </summary>
+        private Blackboard FindParentBlackboard (NonLeafNode nonLeafNode)
+        {
+            if (nonLeafNode.Parent != null)
+            {
+                if (nonLeafNode.Parent.blackboard != null)
+                {
+                    return nonLeafNode.Parent.blackboard;
+                }
+                return FindParentBlackboard(nonLeafNode.Parent);
+            }
+
+            return null;
+        }
+
     }
 
     public class BehaviourTree
