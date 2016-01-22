@@ -31,12 +31,12 @@ namespace HeBT
             }
         }
 
-        private BehaviourTree m_receiver;
+        private HintedBehaviourTree m_receiver;
 
         /// <summary>
         /// Invoker will assign a receiver low behaviour tree when create a hint
         /// </summary>
-        public Hint (BehaviourTree receiver, string name, Common.HintType hint)
+        public Hint (HintedBehaviourTree receiver, string name, Common.HintType hint)
         {
             m_nodeName = name;
             m_hintType = hint;

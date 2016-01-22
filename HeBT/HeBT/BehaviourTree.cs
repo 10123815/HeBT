@@ -46,16 +46,17 @@ namespace HeBT
         {
             CheckName(name);
 
-            if (children == null)
+            SequenceNode seq = new SequenceNode(name, length);
+            if (children != null)
             {
-                return new SequenceNode(name, length);
-            }
-            else
-            {
-                SequenceNode seq = new SequenceNode(name, length);
                 seq.AddChildren(children);
-                return seq;
             }
+            if (bb != null)
+            {
+                seq.blackboard = bb;
+            }
+
+            return seq;
         }
 
         /// <summary>
@@ -88,7 +89,7 @@ namespace HeBT
         /// <param name="name">Node name</param>
         /// <param name="length">Possible number of children</param>
         /// <param name="children">Child nodes of this sub-tree, may be null</param>
-        public ReSelectorNode CreateReSelector (string name, byte length, params Node[] children)
+        public ReSelectorNode CreateReSelector (string name, byte length, Blackboard bb = null, params Node[] children)
         {
             CheckName(name);
 
@@ -97,6 +98,11 @@ namespace HeBT
             {
                 resel.AddChildren(children);
             }
+            if (bb != null)
+            {
+                resel.blackboard = bb;
+            }
+
             return resel;
 
         }
@@ -107,7 +113,7 @@ namespace HeBT
         /// <param name="name">Node name</param>
         /// <param name="length">Possible number of children</param>
         /// <param name="children">Child nodes of this sub-tree, may be null</param>
-        public HintedSelectorNode CreateHintedSelector (string name, byte length, params Node[] children)
+        public HintedSelectorNode CreateHintedSelector (string name, byte length, Blackboard bb = null, params Node[] children)
         {
             CheckName(name);
 
@@ -116,6 +122,11 @@ namespace HeBT
             {
                 hintedSel.AddChildren(children);
             }
+            if (bb != null)
+            {
+                hintedSel.blackboard = bb;
+            }
+
             return hintedSel;
         }
 
@@ -125,7 +136,7 @@ namespace HeBT
         /// <param name="name">Node name</param>
         /// <param name="length">Possible number of children</param>
         /// <param name="children">Child nodes of this sub-tree, may be null</param>
-        public ReHintedSelectorNode CreateReHintedSelector (string name, byte length, params Node[] children)
+        public ReHintedSelectorNode CreateReHintedSelector (string name, byte length, Blackboard bb = null, params Node[] children)
         {
             CheckName(name);
 
@@ -134,6 +145,11 @@ namespace HeBT
             {
                 reHintedSel.AddChildren(children);
             }
+            if (bb != null)
+            {
+                reHintedSel.blackboard = bb;
+            }
+
             return reHintedSel;
         }
 
@@ -143,7 +159,7 @@ namespace HeBT
         /// <param name="name">Node name</param>
         /// <param name="length">Possible number of children</param>
         /// <param name="children">Child nodes of this sub-tree, may be null</param>
-        public ParallelNodeOnceAll CreateParallel (string name, byte length, params Node[] children)
+        public ParallelNodeOnceAll CreateParallel (string name, byte length, Blackboard bb = null, params Node[] children)
         {
             CheckName(name);
 
@@ -152,6 +168,11 @@ namespace HeBT
             {
                 oncePar.AddChildren(children);
             }
+            if (bb != null)
+            {
+                oncePar.blackboard = bb;
+            }
+
             return oncePar;
         }
 
@@ -162,7 +183,7 @@ namespace HeBT
         /// <param name="length">Possible number of children</param>
         /// <param name="limitation">Max number of successful child</param>
         /// <param name="children">Child nodes of this sub-tree, may be null</param>
-        public ParallelSeqNode CreateParallelSequence (string name, byte length, byte limitation = byte.MaxValue, params Node[] children)
+        public ParallelSeqNode CreateParallelSequence (string name, byte length, Blackboard bb = null, byte limitation = byte.MaxValue, params Node[] children)
         {
             CheckName(name);
 
@@ -171,6 +192,11 @@ namespace HeBT
             {
                 parSeq.AddChildren(children);
             }
+            if (bb != null)
+            {
+                parSeq.blackboard = bb;
+            }
+
             return parSeq;
         }
 
@@ -181,7 +207,7 @@ namespace HeBT
         /// <param name="length">Possible number of children</param>
         /// <param name="limitation">Max number of failed child</param>
         /// <param name="children">Child nodes of this sub-tree, may be null</param>
-        public ParallelSelNode CreateParallelSelector (string name, byte length, byte limitation = byte.MaxValue, params Node[] children)
+        public ParallelSelNode CreateParallelSelector (string name, byte length, Blackboard bb = null, byte limitation = byte.MaxValue, params Node[] children)
         {
             CheckName(name);
 
@@ -190,46 +216,71 @@ namespace HeBT
             {
                 parSel.AddChildren(children);
             }
+            if (bb != null)
+            {
+                parSel.blackboard = bb;
+            }
+
             return parSel;
         }
 
         /// <summary>
         /// Create a negator to negate the child's executing result
         /// </summary>
-        public NegateNode CreateNegateDecorator (string name, Node child)
+        public NegateNode CreateNegateDecorator (string name, Node child, Blackboard bb = null)
         {
             CheckName(name);
-            return new NegateNode(name, child);
+            NegateNode node = new NegateNode(name, child);
+            if (bb != null)
+            {
+                node.blackboard = bb;
+            }
+            return node;
         }
 
         /// <summary>
         /// Create a loop node to repeat running its child times
         /// </summary>
-        public LoopNode CreateLoopDecorator (string name, Node child, byte loopTimes)
+        public LoopNode CreateLoopDecorator (string name, Node child, byte loopTimes, Blackboard bb = null)
         {
             CheckName(name);
-            return new LoopNode(name, child, loopTimes);
+            LoopNode node = new LoopNode(name, child, loopTimes);
+            if (bb != null)
+            {
+                node.blackboard = bb;
+            }
+            return node;
         }
 
-        public InfiniteLoopNode CreateInfiniteDecorator (string name, Node child)
+        public InfiniteLoopNode CreateInfiniteDecorator (string name, Node child, Blackboard bb = null)
         {
             CheckName(name);
-            return new InfiniteLoopNode(name, child);
+            InfiniteLoopNode node =  new InfiniteLoopNode(name, child);
+            if (bb != null)
+            {
+                node.blackboard = bb;
+            }
+            return node;
         }
 
         /// <summary>
         /// Create a wrapper to de something else after running a child.
         /// </summary>
         /// <param name="wrapper">Wrapping method</param>
-        public WrapperNode CreateWrapperDecorator (string name, Node child, WrapperNode.DelWrapper wrapper)
+        public WrapperNode CreateWrapperDecorator (string name, Node child, WrapperNode.DelWrapper wrapper, Blackboard bb = null)
         {
             CheckName(name);
-            return new WrapperNode(name, child, wrapper);
+            WrapperNode node= new WrapperNode(name, child, wrapper);
+            if (bb != null)
+            {
+                node.blackboard = bb;
+            }
+            return node;
         }
 
-        public BehaviourTree CreateBT (NonLeafNode root)
+        public HintedBehaviourTree CreateBT (NonLeafNode root)
         {
-            return new BehaviourTree(root);
+            return new HintedBehaviourTree(root);
         }
 
         /// <summary>
@@ -287,10 +338,10 @@ namespace HeBT
 
     }
 
-    public class BehaviourTree
+    public class HintedBehaviourTree
     {
 
-        internal BehaviourTree (NonLeafNode root)
+        internal HintedBehaviourTree (NonLeafNode root)
         {
             m_root = root;
         }

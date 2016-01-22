@@ -3,6 +3,7 @@
 ** Auth: ysd
 ** Date: 2016.1.21
 ** Desc: Blackboard structrue to share data among tree node/BT.
+         Allow sub-trees have their private datas.
 ** Vers: v1.0
 
 *************************************************************/
@@ -15,7 +16,7 @@ namespace HeBT
     {
 
         /// <summary>
-        /// The Blackboard at the parent node of this Blackboard's node.
+        /// The Blackboard at the parent node of this Blackboard's node. The child blackboard can get data from its parent.
         /// </summary>
         private Blackboard m_parent;
 
@@ -41,6 +42,9 @@ namespace HeBT
             m_onDataChangeHandler = new Dictionary<string, DelOnDataChange>();
         }
 
+        /// <summary>
+        /// A BT only get data from a Blackboard.
+        /// </summary>
         public Blackboard (Dictionary<string, object> initDatas)
         {
             m_blackboardData = new Dictionary<string, object>(initDatas);

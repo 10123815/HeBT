@@ -198,6 +198,9 @@ namespace HeBT
         abstract public bool PreCheck ( );
     }
 
+    /// <summary>
+    /// Jump to another node. Higher logic should confirm the correct transmition of animations.
+    /// </summary>
     abstract public class ConditionJumpNode : PreconditionNode
     {
         private string m_jumpName;
