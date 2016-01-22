@@ -216,28 +216,50 @@ namespace HeBT
             // if true, jump to the desired node
             if (PreCheck())
             {
-                // set current child of the parent of the desired node pointing the desired node
+                // search the desired node index in its parent and set the parent pointing this child
+                NonLeafNode root = BackToRoot(this);
+                bool found = SearchInChildren(root, m_jumpName);
 
-
-                return Common.NodeExecuteState.g_kSuccess;
+                // Found it?
+                return found ? Common.NodeExecuteState.g_kSuccess : Common.NodeExecuteState.g_kFailure;
             }
 
             return Child.Execute();
         }
 
-        /// <summary>
-        /// If the desired node is in parent
-        /// </summary>
-        private bool SearchInParent (NonLeafNode parent, string name)
+        private NonLeafNode BackToRoot (NonLeafNode node)
         {
-            return false;
+            if (node.Parent == null)
+            {
+                return node;
+            }
+            return BackToRoot(node.Parent);
         }
 
         /// <summary>
         /// If the desired node is in children
         /// </summary>
-        private bool SearchInChild (NonLeafNode parent, string name)
+        private bool SearchInChildren (NonLeafNode root, string name)
         {
+            Node[] children = root.Children;
+            int l = children.Length;
+            for (byte i = 0; i < l; i++)
+            {
+                if (children[i] is NonLeafNode)
+                {
+                    return SearchInChildren(children[i] as NonLeafNode, name);
+                }
+                else if (children[i].NodeName == name)
+                {
+                    if (root is CompositeNode)
+                    {
+                        (root as CompositeNode).CurrentChildIndex = i;
+                        return true;
+                    }
+                    return false;
+                }
+            }
+
             return false;
         }
 

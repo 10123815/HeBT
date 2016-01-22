@@ -35,7 +35,7 @@ namespace HeBT
             g_kHintedSelector = 3,
             g_kReHintedSelector = 4,
             g_kParallelOnceAll = 5,
-            g_kParallel
+            g_kParallel = 6,
         }
 
     }
