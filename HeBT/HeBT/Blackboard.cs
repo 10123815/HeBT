@@ -134,18 +134,25 @@ namespace HeBT
         /// <summary>
         /// Register a handler for a value.
         /// </summary>
+        /// <returns>No desired value.</returns>
         public bool AddListener (string name, DelOnDataChange onDataChangeHandler)
         {
-            if (m_onDataChangeHandler.ContainsKey(name) && m_blackboardData.ContainsKey(name))
+            if (m_blackboardData.ContainsKey(name))
             {
-                m_onDataChangeHandler[name] += onDataChangeHandler;
-                return true;
+                if (m_onDataChangeHandler.ContainsKey(name))
+                {
+                    m_onDataChangeHandler[name] += onDataChangeHandler;
+                    return true;
+                }
+                else
+                {
+                    m_onDataChangeHandler[name] = onDataChangeHandler;
+                    return true;
+                }
             }
-
-            if (!m_onDataChangeHandler.ContainsKey(name) && m_blackboardData.ContainsKey(name))
+            else if (m_parent != null)
             {
-                m_onDataChangeHandler[name] = onDataChangeHandler;
-                return true;
+                return m_parent.AddListener(name, onDataChangeHandler);
             }
 
             return false;
@@ -154,12 +161,18 @@ namespace HeBT
         /// <summary>
         /// Unregister a handler for a value.
         /// </summary>
+        /// <returns>No desired value.</returns>
         public bool RemoveListener (string name, DelOnDataChange onDataChangeHandler)
         {
-            if (m_onDataChangeHandler.ContainsKey(name) && m_blackboardData.ContainsKey(name))
+            if (m_blackboardData.ContainsKey(name))
             {
-                m_onDataChangeHandler[name] -= onDataChangeHandler;
+                if (m_onDataChangeHandler.ContainsKey(name))
+                    m_onDataChangeHandler[name] -= onDataChangeHandler;
                 return true;
+            }
+            else if (m_parent != null)
+            {
+                return m_parent.RemoveListener(name, onDataChangeHandler);
             }
 
             return false;

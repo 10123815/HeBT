@@ -320,9 +320,9 @@ namespace HeBT
                 byte executeIndex = m_executeOrder[m_currentChildIndex];
                 Common.NodeExecuteState state;
                 if (privateBlackboard == null)
-                    state = m_children[m_currentChildIndex].Execute(blackboard);
+                    state = m_children[executeIndex].Execute(blackboard);
                 else
-                    state = m_children[m_currentChildIndex].Execute(privateBlackboard);
+                    state = m_children[executeIndex].Execute(privateBlackboard);
 
                 // return if it is running or we have find a succees one
                 if (state != Common.NodeExecuteState.g_kFailure)
@@ -392,9 +392,9 @@ namespace HeBT
                 byte executeIndex = m_executeOrder[m_currentChildIndex];
                 Common.NodeExecuteState state;
                 if (privateBlackboard == null)
-                    state = m_children[m_currentChildIndex].Execute(blackboard);
+                    state = m_children[executeIndex].Execute(blackboard);
                 else
-                    state = m_children[m_currentChildIndex].Execute(privateBlackboard);
+                    state = m_children[executeIndex].Execute(privateBlackboard);
 
                 // return if it is running
                 if (state == Common.NodeExecuteState.g_kRunning)
