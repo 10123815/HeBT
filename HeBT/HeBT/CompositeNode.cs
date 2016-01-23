@@ -107,7 +107,12 @@ namespace HeBT
 
             while (true)
             {
-                Common.NodeExecuteState state = m_children[m_currentChildIndex].Execute(blackboard);
+                Common.NodeExecuteState state;
+                if (privateBlackboard == null)
+                    // pass the blackboard from parent
+                    state = m_children[m_currentChildIndex].Execute(blackboard);
+                else
+                    state = m_children[m_currentChildIndex].Execute(privateBlackboard);
 
                 // return if is running or this child has failed out
                 if (state != Common.NodeExecuteState.g_kSuccess)
@@ -148,7 +153,11 @@ namespace HeBT
 
             while (true)
             {
-                Common.NodeExecuteState state = m_children[m_currentChildIndex].Execute(blackboard);
+                Common.NodeExecuteState state;
+                if (privateBlackboard == null)
+                    state = m_children[m_currentChildIndex].Execute(blackboard);
+                else
+                    state = m_children[m_currentChildIndex].Execute(privateBlackboard);
 
                 // return if it is running or we have find a succees one
                 if (state != Common.NodeExecuteState.g_kFailure)
@@ -187,7 +196,11 @@ namespace HeBT
 
             while (true)
             {
-                Common.NodeExecuteState state = m_children[m_currentChildIndex].Execute(blackboard);
+                Common.NodeExecuteState state;
+                if (privateBlackboard == null)
+                    state = m_children[m_currentChildIndex].Execute(blackboard);
+                else
+                    state = m_children[m_currentChildIndex].Execute(privateBlackboard);
 
                 // return if it is running
                 if (state == Common.NodeExecuteState.g_kRunning)
@@ -305,7 +318,11 @@ namespace HeBT
             while (true)
             {
                 byte executeIndex = m_executeOrder[m_currentChildIndex];
-                Common.NodeExecuteState state = m_children[executeIndex].Execute(blackboard);
+                Common.NodeExecuteState state;
+                if (privateBlackboard == null)
+                    state = m_children[m_currentChildIndex].Execute(blackboard);
+                else
+                    state = m_children[m_currentChildIndex].Execute(privateBlackboard);
 
                 // return if it is running or we have find a succees one
                 if (state != Common.NodeExecuteState.g_kFailure)
@@ -373,7 +390,11 @@ namespace HeBT
             while (true)
             {
                 byte executeIndex = m_executeOrder[m_currentChildIndex];
-                Common.NodeExecuteState state = m_children[executeIndex].Execute(blackboard);
+                Common.NodeExecuteState state;
+                if (privateBlackboard == null)
+                    state = m_children[m_currentChildIndex].Execute(blackboard);
+                else
+                    state = m_children[m_currentChildIndex].Execute(privateBlackboard);
 
                 // return if it is running
                 if (state == Common.NodeExecuteState.g_kRunning)
@@ -463,7 +484,11 @@ namespace HeBT
             for (byte i = 0; i < runningCount; i++)
             {
                 byte currentChildIndex = m_runningChildrenIndex[i];
-                Common.NodeExecuteState state = m_children[currentChildIndex].Execute(blackboard);
+                Common.NodeExecuteState state;
+                if (privateBlackboard == null)
+                    state = m_children[m_currentChildIndex].Execute(blackboard);
+                else
+                    state = m_children[m_currentChildIndex].Execute(privateBlackboard);
 
                 if (state == Common.NodeExecuteState.g_kSuccess)
                 {
@@ -523,7 +548,12 @@ namespace HeBT
             int l = m_children.Length;
             for (int i = 0; i < l; i++)
             {
-                Common.NodeExecuteState state = m_children[i].Execute(blackboard);
+                Common.NodeExecuteState state;
+                if (privateBlackboard == null)
+                    state = m_children[m_currentChildIndex].Execute(blackboard);
+                else
+                    state = m_children[m_currentChildIndex].Execute(privateBlackboard);
+
                 if (state == Common.NodeExecuteState.g_kFailure)
                 {
                     // Failed once any child is failed
@@ -575,7 +605,11 @@ namespace HeBT
             int l = Children.Length;
             for (int i = 0; i < l; i++)
             {
-                Common.NodeExecuteState state = Children[i].Execute(blackboard);
+                Common.NodeExecuteState state;
+                if (privateBlackboard == null)
+                    state = m_children[m_currentChildIndex].Execute(blackboard);
+                else
+                    state = m_children[m_currentChildIndex].Execute(privateBlackboard);
 
                 // success once one child is successful
                 if (state == Common.NodeExecuteState.g_kSuccess)

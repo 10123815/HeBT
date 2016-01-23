@@ -75,7 +75,7 @@ namespace HeBT
         /// <summary>
         /// Datas shared among this node and its chidldren.
         /// </summary>
-        public Blackboard blackboard;
+        public Blackboard privateBlackboard;
 
         protected Node[] m_children;
 
