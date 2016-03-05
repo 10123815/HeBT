@@ -208,13 +208,13 @@ namespace HeBT
 
         public override Common.NodeExecuteState Execute (Blackboard blackboard)
         {
-            if (PreCheck(blackboard))
+            Blackboard bb = privateBlackboard;
+            if (bb == null)
+                bb = blackboard;
+
+            if (PreCheck(bb))
             {
-                Common.NodeExecuteState state;
-                if (privateBlackboard == null)
-                    state = Child.Execute(blackboard);
-                else
-                    state = Child.Execute(privateBlackboard);
+                Common.NodeExecuteState state = Child.Execute(bb);
                 return state;
             }
             else
@@ -239,8 +239,13 @@ namespace HeBT
 
         public override Common.NodeExecuteState Execute (Blackboard blackboard)
         {
+
+            Blackboard bb = privateBlackboard;
+            if (bb == null)
+                bb = blackboard;
+
             // if true, jump to the desired node
-            if (PreCheck(blackboard))
+            if (PreCheck(bb))
             {
                 // search the desired node index in its parent and set the parent pointing this child
                 NonLeafNode root = BackToRoot(this);
@@ -250,11 +255,7 @@ namespace HeBT
                 return found ? Common.NodeExecuteState.g_kSuccess : Common.NodeExecuteState.g_kFailure;
             }
 
-            Common.NodeExecuteState state;
-            if (privateBlackboard == null)
-                state = Child.Execute(blackboard);
-            else
-                state = Child.Execute(privateBlackboard);
+            Common.NodeExecuteState state = Child.Execute(bb);
             return state;
         }
 
