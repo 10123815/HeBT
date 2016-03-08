@@ -278,6 +278,15 @@ namespace HeBT
             return node;
         }
 
+        /// <summary>
+        /// Create a condition node with anonymous function for checking.
+        /// </summary>
+        public DelConditionNode CreateDelConditionNode (string name, DelConditionNode.DelCheck checkMethod)
+        {
+            CheckName(name);
+            return new DelConditionNode(name, checkMethod);
+        }
+
         public HintedBehaviourTree CreateBT (NonLeafNode root)
         {
             return new HintedBehaviourTree(root);

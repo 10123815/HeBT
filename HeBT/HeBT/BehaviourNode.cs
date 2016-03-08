@@ -7,6 +7,8 @@
 
 *************************************************************/
 
+using System;
+
 namespace HeBT
 {
 
@@ -29,7 +31,7 @@ namespace HeBT
 
         private Hint m_hint;
 
-        public HinterNode (string name, Hint hint)
+        internal HinterNode (string name, Hint hint)
             : base(name)
         {
             m_hint = hint;
@@ -62,6 +64,32 @@ namespace HeBT
         }
 
         abstract public bool Check (Blackboard blackboard);
+    }
+
+    /// <summary>
+    /// Concrete condition node with delegate.
+    /// </summary>
+    public class DelConditionNode : BehaviourNode
+    {
+        public DelConditionNode (string name, DelCheck cm)
+            : base(name)
+        {
+            checkMethod = cm;
+        }
+
+        public delegate bool DelCheck (Blackboard blackboard);
+        public DelCheck checkMethod;
+
+        public override Common.NodeExecuteState Execute (Blackboard blackboard)
+        {
+            if (checkMethod(blackboard))
+            {
+                return Common.NodeExecuteState.g_kSuccess;
+            }
+
+            return Common.NodeExecuteState.g_kFailure;
+        }
+
     }
     
 }
