@@ -73,7 +73,7 @@ namespace HeBT
     {
 
         /// <summary>
-        /// Datas shared among this node and its chidldren.
+        /// Datas shared among this node and its chidldren. Its father's other children cannot access this bb.
         /// </summary>
         public Blackboard privateBlackboard;
 

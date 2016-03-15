@@ -2,7 +2,8 @@
 
 ** Auth: ysd
 ** Date: 2015.12.23
-** Desc: Hint send from high-layer logic to low-layer logic.
+** Desc: A Hinter send a hint from high-layer logic to low-layer logic.
+         Exp. An admiral's BT send a command to a solider's.
 ** Vers: v1.0
 
 *************************************************************/

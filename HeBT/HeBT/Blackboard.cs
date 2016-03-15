@@ -79,6 +79,7 @@ namespace HeBT
                         return false;
                     }
                     else
+                        // May be its parent.
                         return m_parent.Get(name, out value);
                 }
                 return true;
