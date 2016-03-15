@@ -40,7 +40,7 @@ namespace HeBT
         public override Common.NodeExecuteState Execute (Blackboard blackboard)
         {
             m_hint.Send();
-            return Common.NodeExecuteState.g_kSuccess;    
+            return Common.NodeExecuteState.kSuccess;    
         }
 
     }
@@ -58,9 +58,9 @@ namespace HeBT
         public override Common.NodeExecuteState Execute (Blackboard blackboard)
         {
             if (Check(blackboard))
-                return Common.NodeExecuteState.g_kSuccess;
+                return Common.NodeExecuteState.kSuccess;
             else
-                return Common.NodeExecuteState.g_kFailure;
+                return Common.NodeExecuteState.kFailure;
         }
 
         abstract public bool Check (Blackboard blackboard);
@@ -84,10 +84,10 @@ namespace HeBT
         {
             if (checkMethod(blackboard))
             {
-                return Common.NodeExecuteState.g_kSuccess;
+                return Common.NodeExecuteState.kSuccess;
             }
 
-            return Common.NodeExecuteState.g_kFailure;
+            return Common.NodeExecuteState.kFailure;
         }
 
     }

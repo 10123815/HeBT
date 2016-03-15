@@ -115,7 +115,7 @@ namespace HeBT
                     state = m_children[m_currentChildIndex].Execute(privateBlackboard);
 
                 // return if is running or this child has failed out
-                if (state != Common.NodeExecuteState.g_kSuccess)
+                if (state != Common.NodeExecuteState.kSuccess)
                 {
                     return state;
                 }
@@ -125,7 +125,7 @@ namespace HeBT
                     m_children[m_currentChildIndex] == null)
                 {
                     m_currentChildIndex = 0;
-                    return Common.NodeExecuteState.g_kSuccess;
+                    return Common.NodeExecuteState.kSuccess;
                 }
 
             }
@@ -160,7 +160,7 @@ namespace HeBT
                     state = m_children[m_currentChildIndex].Execute(privateBlackboard);
 
                 // return if it is running or we have find a succees one
-                if (state != Common.NodeExecuteState.g_kFailure)
+                if (state != Common.NodeExecuteState.kFailure)
                 {
                     return state;
                 }
@@ -170,7 +170,7 @@ namespace HeBT
                     m_children[m_currentChildIndex] == null)
                 {
                     m_currentChildIndex = 0;
-                    return Common.NodeExecuteState.g_kFailure;
+                    return Common.NodeExecuteState.kFailure;
                 }
             }
         }
@@ -203,13 +203,13 @@ namespace HeBT
                     state = m_children[m_currentChildIndex].Execute(privateBlackboard);
 
                 // return if it is running
-                if (state == Common.NodeExecuteState.g_kRunning)
+                if (state == Common.NodeExecuteState.kRunning)
                 {
                     return state;
                 }
 
                 // return and re-execute the first child if current child is successful
-                else if (state == Common.NodeExecuteState.g_kSuccess)
+                else if (state == Common.NodeExecuteState.kSuccess)
                 {
                     m_currentChildIndex = 0;
                     return state;
@@ -220,7 +220,7 @@ namespace HeBT
                     m_children[m_currentChildIndex] == null)
                 {
                     m_currentChildIndex = 0;
-                    return Common.NodeExecuteState.g_kFailure;
+                    return Common.NodeExecuteState.kFailure;
                 }
             }
         }
@@ -243,7 +243,7 @@ namespace HeBT
         {
             switch (hint)
             {
-                case Common.HintType.g_kPositive:
+                case Common.HintType.kPositive:
 
                     // reorder
                     for (byte i = childIndex; i > 0; i--)
@@ -252,7 +252,7 @@ namespace HeBT
                     }
                     executeOrder[0] = childIndex;
                     break;
-                case Common.HintType.g_kNeutral:
+                case Common.HintType.kNeutral:
                     byte currentIndex = (byte)Array.IndexOf<byte>(executeOrder, childIndex);
                     // if hinted child is not at its origin order, reorder it back
                     if (currentIndex < childIndex)
@@ -272,7 +272,7 @@ namespace HeBT
                         executeOrder[childIndex] = childIndex;
                     }
                     break;
-                case Common.HintType.g_kNegative:
+                case Common.HintType.kNegative:
                     // reorder
                     for (byte i = childIndex; i < executeOrder.Length - 1; i++)
                     {
@@ -325,7 +325,7 @@ namespace HeBT
                     state = m_children[executeIndex].Execute(privateBlackboard);
 
                 // return if it is running or we have find a succees one
-                if (state != Common.NodeExecuteState.g_kFailure)
+                if (state != Common.NodeExecuteState.kFailure)
                 {
                     return state;
                 }
@@ -335,7 +335,7 @@ namespace HeBT
                     m_children[m_currentChildIndex] == null)
                 {
                     m_currentChildIndex = 0;
-                    return Common.NodeExecuteState.g_kFailure;
+                    return Common.NodeExecuteState.kFailure;
                 }
             }
         }
@@ -349,7 +349,7 @@ namespace HeBT
         {
             HintReceiver.Hinted(childIndex, hint, ref m_executeOrder);
 
-            if (hint == Common.HintType.g_kPositive)
+            if (hint == Common.HintType.kPositive)
             {
                 // the hinted child will execute at next tick 
                 m_currentChildIndex = 0;
@@ -397,13 +397,13 @@ namespace HeBT
                     state = m_children[executeIndex].Execute(privateBlackboard);
 
                 // return if it is running
-                if (state == Common.NodeExecuteState.g_kRunning)
+                if (state == Common.NodeExecuteState.kRunning)
                 {
                     return state;
                 }
 
                 // return and re-execute the first child if current child is successful
-                else if (state == Common.NodeExecuteState.g_kSuccess)
+                else if (state == Common.NodeExecuteState.kSuccess)
                 {
                     // the hinted child is at m_executeOrder[0]
                     m_currentChildIndex = 0;
@@ -415,7 +415,7 @@ namespace HeBT
                     m_children[m_currentChildIndex] == null)
                 {
                     m_currentChildIndex = 0;
-                    return Common.NodeExecuteState.g_kFailure;
+                    return Common.NodeExecuteState.kFailure;
                 }
             }
         }
@@ -429,7 +429,7 @@ namespace HeBT
         {
             HintReceiver.Hinted(childIndex, hint, ref m_executeOrder);
 
-            if (hint == Common.HintType.g_kPositive)
+            if (hint == Common.HintType.kPositive)
             {
                 // the hinted child will execute at next tick 
                 m_currentChildIndex = 0;
@@ -490,23 +490,23 @@ namespace HeBT
                 else
                     state = m_children[m_currentChildIndex].Execute(privateBlackboard);
 
-                if (state == Common.NodeExecuteState.g_kSuccess)
+                if (state == Common.NodeExecuteState.kSuccess)
                 {
                     if (++m_successNumber == m_children.Length)
                     {
                         ResetRunningChildren();
-                        return Common.NodeExecuteState.g_kSuccess;
+                        return Common.NodeExecuteState.kSuccess;
                     }
 
                     // remove from running children list
                     m_runningChildrenIndex.RemoveAt(i);
                 }
-                else if (state == Common.NodeExecuteState.g_kFailure)
+                else if (state == Common.NodeExecuteState.kFailure)
                 {
                     if (++m_failureNumber == m_children.Length)
                     {
                         ResetRunningChildren();
-                        return Common.NodeExecuteState.g_kFailure;
+                        return Common.NodeExecuteState.kFailure;
                     }
 
                     // remove from running children list
@@ -515,7 +515,7 @@ namespace HeBT
             }
 
             // still execute the running children
-            return Common.NodeExecuteState.g_kRunning;
+            return Common.NodeExecuteState.kRunning;
 
         }
     }
@@ -554,13 +554,13 @@ namespace HeBT
                 else
                     state = m_children[m_currentChildIndex].Execute(privateBlackboard);
 
-                if (state == Common.NodeExecuteState.g_kFailure)
+                if (state == Common.NodeExecuteState.kFailure)
                 {
                     // Failed once any child is failed
                     return state;
                 }
 
-                if (state == Common.NodeExecuteState.g_kSuccess)
+                if (state == Common.NodeExecuteState.kSuccess)
                 {
                     successNumber++;
                 }
@@ -569,10 +569,10 @@ namespace HeBT
             // Success when some children success
             if (successNumber == m_maxSuccessNumber)
             {
-                return Common.NodeExecuteState.g_kSuccess;
+                return Common.NodeExecuteState.kSuccess;
             }
 
-            return Common.NodeExecuteState.g_kRunning;
+            return Common.NodeExecuteState.kRunning;
         }
     }
 
@@ -612,12 +612,12 @@ namespace HeBT
                     state = m_children[m_currentChildIndex].Execute(privateBlackboard);
 
                 // success once one child is successful
-                if (state == Common.NodeExecuteState.g_kSuccess)
+                if (state == Common.NodeExecuteState.kSuccess)
                 {
-                    return Common.NodeExecuteState.g_kSuccess;
+                    return Common.NodeExecuteState.kSuccess;
                 }
 
-                if (state == Common.NodeExecuteState.g_kFailure)
+                if (state == Common.NodeExecuteState.kFailure)
                 {
                     failedNumber++;
                 }
@@ -626,10 +626,10 @@ namespace HeBT
             // Success when some children is failed
             if (failedNumber == m_maxFailedNumber)
             {
-                return Common.NodeExecuteState.g_kFailure;
+                return Common.NodeExecuteState.kFailure;
             }
 
-            return Common.NodeExecuteState.g_kRunning;
+            return Common.NodeExecuteState.kRunning;
 
         }
 

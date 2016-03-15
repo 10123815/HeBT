@@ -67,17 +67,17 @@ namespace HeBT
             else
                 state = Child.Execute(privateBlackboard);
 
-            if (state == Common.NodeExecuteState.g_kSuccess)
+            if (state == Common.NodeExecuteState.kSuccess)
             {
-                return Common.NodeExecuteState.g_kFailure;
+                return Common.NodeExecuteState.kFailure;
             }
 
-            if (state == Common.NodeExecuteState.g_kFailure)
+            if (state == Common.NodeExecuteState.kFailure)
             {
-                return Common.NodeExecuteState.g_kSuccess;
+                return Common.NodeExecuteState.kSuccess;
             }
 
-            return Common.NodeExecuteState.g_kRunning;
+            return Common.NodeExecuteState.kRunning;
         }
 
     }
@@ -124,20 +124,20 @@ namespace HeBT
             else
                 state = Child.Execute(privateBlackboard);
 
-            if (state == Common.NodeExecuteState.g_kFailure)
+            if (state == Common.NodeExecuteState.kFailure)
             {
                 m_currentCount = 0;
                 return state;
             }
             else if (++m_currentCount > m_loopTimes)
             {
-                if (state == Common.NodeExecuteState.g_kSuccess)
+                if (state == Common.NodeExecuteState.kSuccess)
                 {
                     m_currentCount = 0;
                 }
                 return state;
             }
-            return Common.NodeExecuteState.g_kRunning;
+            return Common.NodeExecuteState.kRunning;
         }
     }
 
@@ -159,11 +159,11 @@ namespace HeBT
             else
                 state = Child.Execute(privateBlackboard);
 
-            if (state == Common.NodeExecuteState.g_kFailure)
+            if (state == Common.NodeExecuteState.kFailure)
             {
-                return Common.NodeExecuteState.g_kFailure;
+                return Common.NodeExecuteState.kFailure;
             }
-            return Common.NodeExecuteState.g_kRunning;
+            return Common.NodeExecuteState.kRunning;
         }
 
     }
@@ -218,7 +218,7 @@ namespace HeBT
                 return state;
             }
             else
-                return Common.NodeExecuteState.g_kFailure;
+                return Common.NodeExecuteState.kFailure;
         }
 
         abstract public bool PreCheck (Blackboard blackboard);
@@ -252,7 +252,7 @@ namespace HeBT
                 bool found = SearchInChildren(root, m_jumpName);
 
                 // Found it?
-                return found ? Common.NodeExecuteState.g_kSuccess : Common.NodeExecuteState.g_kFailure;
+                return found ? Common.NodeExecuteState.kSuccess : Common.NodeExecuteState.kFailure;
             }
 
             Common.NodeExecuteState state = Child.Execute(bb);
