@@ -16,7 +16,9 @@ namespace HeBT
     {
 
         /// <summary>
-        /// The Blackboard at the parent node of this Blackboard's node. The child blackboard can get data from its parent.
+        /// The Blackboard at the parent node of this Blackboard's node. 
+        /// The child blackboard can get data from its parent. 
+        /// It need to set manually。
         /// </summary>
         private Blackboard m_parent;
 
