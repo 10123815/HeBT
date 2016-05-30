@@ -1,7 +1,7 @@
 # HeBT
 Lib of Hinted-Execution Behaviour Tree in csharp.    
-</br>
-References:       
+------------------------------------------------
+### References:       
 </br>
 [1] The Behavior Tree Starter Kit. Game AI Pro, pp.73-91.   
 [2] btsk. https://github.com/aigamedev/btsk.    
